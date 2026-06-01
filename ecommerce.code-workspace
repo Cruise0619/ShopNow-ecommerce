@@ -1,0 +1,17 @@
+{
+  "folders": [
+    { "name": "Frontend (VS Code)", "path": "ecommerce-frontend" },
+    { "name": "Backend (IDEA)", "path": "ecommerce-backend" }
+  ],
+  "settings": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/uploads": true
+    }
+  },
+  "extensions": {
+    "recommendations": ["Vue.volar", "dbaeumer.vscode-eslint"]
+  }
+}

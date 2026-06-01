@@ -1,0 +1,25 @@
+# ======== 通用 ========
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.claude/
+
+# ======== 前端 (ecommerce-frontend) ========
+ecommerce-frontend/node_modules/
+ecommerce-frontend/dist/
+ecommerce-frontend/.env.development
+ecommerce-frontend/.env.production
+ecommerce-frontend/*.local
+
+# ======== 后端 (ecommerce-backend-java) ========
+ecommerce-backend-java/target/
+ecommerce-backend-java/*.class
+ecommerce-backend-java/*.jar
+ecommerce-backend-java/*.war
+ecommerce-backend-java/.idea/
+ecommerce-backend-java/*.iml
+
+# ======== 敏感配置 ========
+ecommerce-backend-java/src/main/resources/application.yml
