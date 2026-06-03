@@ -26,7 +26,8 @@
         stripe
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
       >
-        <el-table-column prop="id" label="ID" width="70" align="center" />
+        <el-table-column type="index" label="#" width="60" align="center" :index="(idx) => (currentPage - 1) * pageSize + idx + 1" />
+        <el-table-column prop="uid" label="UID" width="80" align="center" />
         <el-table-column prop="username" label="用户名" min-width="110" />
         <el-table-column prop="email" label="邮箱" min-width="170" show-overflow-tooltip />
         <el-table-column prop="phone" label="手机号" width="135" />
@@ -40,8 +41,8 @@
         <el-table-column prop="createdAt" label="注册时间" width="170" />
         <el-table-column label="状态" width="90" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small" effect="light">
-              {{ row.status === 1 ? '正常' : '禁用' }}
+            <el-tag :type="(row.status === 'active' || row.status === '1') ? 'success' : 'danger'" size="small" effect="light">
+              {{ (row.status === 'active' || row.status === '1') ? '正常' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -112,7 +113,7 @@
           <el-input v-model="editForm.phone" placeholder="请输入手机号" maxlength="11" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch v-model="editForm.status" :active-value="1" :inactive-value="0" active-text="正常" inactive-text="禁用" />
+          <el-switch v-model="editForm.status" active-value="active" inactive-value="disabled" active-text="正常" inactive-text="禁用" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -124,7 +125,7 @@
     <!-- 用户详情 -->
     <el-dialog v-model="detailVisible" title="用户详情" width="520px" :close-on-click-modal="false">
       <el-descriptions :column="2" border v-if="detailUser">
-        <el-descriptions-item label="用户ID">{{ detailUser.id }}</el-descriptions-item>
+        <el-descriptions-item label="UID">{{ detailUser.uid || '-' }}</el-descriptions-item>
         <el-descriptions-item label="用户名">{{ detailUser.username }}</el-descriptions-item>
         <el-descriptions-item label="邮箱">{{ detailUser.email || '-' }}</el-descriptions-item>
         <el-descriptions-item label="手机号">{{ detailUser.phone || '-' }}</el-descriptions-item>
@@ -134,8 +135,8 @@
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-tag :type="detailUser.status === 1 ? 'success' : 'danger'" size="small">
-            {{ detailUser.status === 1 ? '正常' : '禁用' }}
+          <el-tag :type="(detailUser.status === 'active' || detailUser.status === '1') ? 'success' : 'danger'" size="small">
+            {{ (detailUser.status === 'active' || detailUser.status === '1') ? '正常' : '禁用' }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="注册时间">{{ detailUser.createdAt || '-' }}</el-descriptions-item>
@@ -175,7 +176,7 @@ const createRules = {
 const editVisible = ref(false)
 const editLoading = ref(false)
 const editFormRef = ref(null)
-const editForm = reactive({ id: null, username: '', email: '', phone: '', status: 1 })
+const editForm = reactive({ id: null, username: '', email: '', phone: '', status: 'active' })
 const editRules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
 }
@@ -195,7 +196,9 @@ async function loadData() {
     const res = await adminAPI.users({
       page: currentPage.value,
       page_size: pageSize.value,
-      keyword: searchKeyword.value || undefined
+      keyword: searchKeyword.value || undefined,
+      sort: 'id',
+      order: 'desc'
     })
     if (res.code === 200) {
       tableData.value = res.data?.list || res.data || []
@@ -239,7 +242,7 @@ function openEdit(row) {
   editForm.username = row.username
   editForm.email = row.email || ''
   editForm.phone = row.phone || ''
-  editForm.status = row.status
+  editForm.status = (row.status === 'active' || row.status === '1') ? 'active' : 'disabled'
   editVisible.value = true
 }
 

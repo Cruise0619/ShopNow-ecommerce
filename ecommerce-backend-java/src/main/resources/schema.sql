@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS users;
 -- 重建全部表
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    uid VARCHAR(3) UNIQUE,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) DEFAULT '',
     password_hash VARCHAR(255) NOT NULL,
@@ -112,6 +113,7 @@ CREATE TABLE orders (
     shipping_time DATETIME DEFAULT NULL,
     receive_time DATETIME DEFAULT NULL,
     tracking_no VARCHAR(100) DEFAULT NULL,
+    shipping_company VARCHAR(50) DEFAULT NULL,
     pay_token VARCHAR(64) DEFAULT NULL,
     remark VARCHAR(500) DEFAULT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -80,6 +80,7 @@ public class AuthController {
         String token = jwtUtil.generateToken(user.getId());
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", user.getId());
+        userData.put("uid", user.getUid());
         userData.put("username", user.getUsername());
         userData.put("email", user.getEmail());
         userData.put("role", user.getRole());
@@ -107,6 +108,7 @@ public class AuthController {
         String token = jwtUtil.generateToken(user.getId());
         Map<String, Object> userData = new HashMap<>();
         userData.put("id", user.getId());
+        userData.put("uid", user.getUid());
         userData.put("username", user.getUsername());
         userData.put("email", user.getEmail());
         userData.put("phone", user.getPhone());

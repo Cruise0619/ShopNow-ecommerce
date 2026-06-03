@@ -15,6 +15,7 @@
         stripe
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
       >
+        <el-table-column type="index" label="#" width="60" align="center" />
         <el-table-column label="商品" min-width="180" show-overflow-tooltip>
           <template #default="{ row }">{{ row.product?.name || '商品#' + row.productId }}</template>
         </el-table-column>

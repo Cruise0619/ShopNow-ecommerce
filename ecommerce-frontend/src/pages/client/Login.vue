@@ -1,5 +1,6 @@
 <template>
   <div class="login-page">
+    <StarryParticles />
     <div class="login-card">
       <div class="login-header">
         <h1>欢迎回来</h1>
@@ -59,6 +60,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
+import StarryParticles from '@/components/StarryParticles.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -121,28 +123,20 @@ if (savedRememberMe === 'true' && savedUsername) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #ef4444 0%, #dc2626 30%, #b91c1c 60%, #991b1b 100%);
+  background: linear-gradient(180deg, #3f0505 0%, #1f0202 50%, #0d0000 100%);
   padding: 20px;
   position: relative;
 }
-.login-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 70% 80%, rgba(239,68,68,0.10) 0%, transparent 60%);
-  pointer-events: none;
-}
 
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 420px;
   max-width: 100%;
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(20px);
+  background: #fff;
   border-radius: 16px;
   padding: 40px;
-  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 .login-header {

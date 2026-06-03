@@ -1,6 +1,7 @@
 package com.ecommerce.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,7 +14,9 @@ public class FlashSale {
     private BigDecimal flashPrice;
     private Integer stock;
     private Integer sold;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private Date startTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private Date endTime;
     private String status;
     private Date createdAt;

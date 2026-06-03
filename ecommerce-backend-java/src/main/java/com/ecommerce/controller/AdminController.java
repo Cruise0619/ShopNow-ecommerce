@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class AdminController {
     @Autowired private FlashSaleMapper flashSaleMapper;
     @Autowired private FlashSaleService flashSaleService;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
+    @Autowired private JdbcTemplate jdbcTemplate;
 
     // ===== Dashboard =====
     @GetMapping("/dashboard")
@@ -67,6 +69,20 @@ public class AdminController {
     }
 
     // ===== Users =====
+    @PostMapping("/users/backfill-uids")
+    public ApiResponse<Map<String, Object>> backfillUids() {
+        // Ensure the uid column exists in the database
+        try {
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN uid VARCHAR(3) UNIQUE");
+        } catch (Exception e) {
+            // Column already exists — ignore
+        }
+        int count = userService.backfillUids();
+        Map<String, Object> data = new HashMap<>();
+        data.put("updated", count);
+        return ApiResponse.ok("UID补全完成", data);
+    }
+
     @GetMapping("/users")
     public ApiResponse<Map<String, Object>> userList(
             @RequestParam(defaultValue = "1") int page,
@@ -119,8 +135,8 @@ public class AdminController {
         cartItemMapper.delete(new QueryWrapper<CartItem>().eq("user_id", id));
         favoriteMapper.delete(new QueryWrapper<Favorite>().eq("user_id", id));
         feedbackMapper.delete(new QueryWrapper<Feedback>().eq("user_id", id));
-        messageMapper.delete(new QueryWrapper<Message>().eq("sender_id", id)
-                .or().eq("receiver_id", id));
+        messageMapper.delete(new QueryWrapper<Message>().eq("from_user_id", id)
+                .or().eq("to_user_id", id));
         // Handle orders: delete order items then orders
         List<Order> userOrders = orderMapper.selectList(
                 new QueryWrapper<Order>().eq("user_id", id));
@@ -149,7 +165,7 @@ public class AdminController {
     @GetMapping("/categories")
     public ApiResponse<List<Category>> categoryList() {
         List<Category> all = categoryMapper.selectList(
-                new QueryWrapper<Category>().orderByAsc("sort_order"));
+                new QueryWrapper<Category>().orderByDesc("id"));
         // Build tree
         List<Category> roots = new ArrayList<>();
         Map<Integer, List<Category>> childrenMap = new HashMap<>();
@@ -405,7 +421,12 @@ public class AdminController {
         }
         order.setStatus("shipped");
         order.setShippingTime(new Date());
-        order.setTrackingNo(body.getOrDefault("tracking_no", ""));
+        String trackingNo = body.getOrDefault("tracking_no", "");
+        if (trackingNo.isEmpty()) {
+            trackingNo = "EXP" + UUID.randomUUID().toString().replace("-", "").substring(0, 14).toUpperCase();
+        }
+        order.setTrackingNo(trackingNo);
+        order.setShippingCompany(body.getOrDefault("company", ""));
         orderMapper.updateById(order);
         return ApiResponse.ok(null);
     }

@@ -1,107 +1,137 @@
 <template>
-  <div class="admin-messages-page">
-    <el-row :gutter="16" class="msg-container">
+  <div class="admin-cs-page">
+    <div class="admin-cs-container">
       <!-- 左侧会话列表 -->
-      <el-col :span="7">
-        <el-card shadow="never" class="conv-card">
-          <template #header>
-            <div class="conv-card-title">
-              <span>会话列表</span>
-              <el-badge :value="totalUnread" :hidden="!totalUnread" class="unread-badge" />
-            </div>
-          </template>
-          <div class="conv-list" v-loading="convLoading">
-            <div
-              v-for="conv in conversations"
-              :key="conv.userId"
-              class="conv-item"
-              :class="{ active: activeUserId === conv.userId }"
-              @click="selectConv(conv)"
-            >
-              <el-avatar :size="44" class="conv-avatar">
+      <div class="conv-panel">
+        <div class="conv-panel-header">
+          <div class="panel-title">
+            <el-icon><ChatDotRound /></el-icon>
+            <span>咨询列表</span>
+          </div>
+          <el-badge :value="totalUnread" :hidden="!totalUnread" :max="99" class="panel-badge" />
+        </div>
+        <div class="conv-search">
+          <el-input v-model="convSearch" placeholder="搜索用户..." size="small" clearable prefix-icon="Search" />
+        </div>
+        <div class="conv-list" v-loading="convLoading">
+          <div
+            v-for="conv in filteredConversations"
+            :key="conv.userId"
+            class="conv-item"
+            :class="{ active: activeUserId === conv.userId }"
+            @click="selectConv(conv)"
+          >
+            <div class="conv-avatar-wrap">
+              <el-avatar :size="42" class="conv-avatar">
                 {{ (conv.username || '用')[0] }}
               </el-avatar>
-              <div class="conv-info">
-                <div class="conv-top">
-                  <strong class="conv-name">{{ conv.username }}</strong>
-                  <span class="conv-time">{{ formatShort(conv.lastTime) }}</span>
-                </div>
-                <div class="conv-bottom">
-                  <span class="conv-preview">{{ conv.lastMessage || '暂无消息' }}</span>
-                  <el-badge :value="conv.unread" :hidden="!conv.unread" />
-                </div>
+              <span class="conv-dot" v-if="conv.unread"></span>
+            </div>
+            <div class="conv-body">
+              <div class="conv-top-row">
+                <span class="conv-username">{{ conv.username }}</span>
+                <span class="conv-time">{{ formatConvTime(conv.lastTime) }}</span>
+              </div>
+              <div class="conv-bottom-row">
+                <span class="conv-preview">{{ conv.lastMessage || '暂无消息' }}</span>
+                <el-badge :value="conv.unread" :hidden="!conv.unread" :max="99" />
               </div>
             </div>
-            <el-empty v-if="!conversations.length && !convLoading" description="暂无用户咨询" :image-size="60" />
           </div>
-        </el-card>
-      </el-col>
+          <el-empty v-if="!filteredConversations.length && !convLoading" description="暂无用户咨询" :image-size="56" />
+        </div>
+      </div>
 
-      <!-- 右侧聊天窗口 -->
-      <el-col :span="17">
-        <el-card shadow="never" class="chat-card" v-if="activeUserId">
-          <template #header>
-            <div class="chat-header">
-              <el-avatar :size="38" class="chat-header-avatar">
+      <!-- 右侧聊天区 -->
+      <div class="chat-panel" v-if="activeUserId">
+        <!-- 聊天头部 -->
+        <div class="chat-panel-header">
+          <div class="chat-user-info">
+            <el-avatar :size="40" class="chat-user-avatar">
+              {{ (activeUsername || '用')[0] }}
+            </el-avatar>
+            <div class="chat-user-text">
+              <div class="chat-user-name">{{ activeUsername }}</div>
+              <div class="chat-user-id">UID: {{ String(activeUserId).padStart(3, '0') }}</div>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <el-button size="small" text @click="insertQuickReply('感谢您的咨询，还有其他问题可以随时联系我们。')">
+              快捷结束语
+            </el-button>
+          </div>
+        </div>
+
+        <!-- 消息区 -->
+        <div class="chat-body" ref="adminChatBodyRef" v-loading="chatLoading">
+          <div class="chat-date-tag" v-if="chatMessages.length">
+            <span>{{ formatDate(chatMessages[0]?.createdAt) }}</span>
+          </div>
+          <template v-for="(item, i) in displayChatMessages" :key="item._key">
+            <div class="chat-date-tag" v-if="item._isTime"><span>{{ item._timeLabel }}</span></div>
+            <div
+              v-else
+              class="chat-msg"
+              :class="item._mine ? 'msg-mine' : 'msg-other'"
+            >
+              <el-avatar :size="34" class="chat-msg-avatar" v-if="!item._mine">
                 {{ (activeUsername || '用')[0] }}
               </el-avatar>
-              <div class="chat-header-info">
-                <span class="chat-header-name">{{ activeUsername }}</span>
-                <span class="chat-header-sub">用户咨询</span>
+              <div class="chat-msg-body">
+                <div class="chat-msg-name" v-if="!item._mine">{{ activeUsername }}</div>
+                <div class="chat-msg-bubble">{{ item.content }}</div>
               </div>
+              <el-avatar :size="34" class="chat-msg-avatar admin-avatar" v-if="item._mine">我</el-avatar>
             </div>
           </template>
-          <div class="chat-body" ref="adminChatBodyRef" v-loading="chatLoading">
-            <div class="sys-msg" v-if="chatMessages.length">
-              <span class="sys-text">—— 以上为历史消息 ——</span>
-            </div>
-            <template v-for="(item, i) in displayChatMessages" :key="item._key">
-              <div class="sys-msg" v-if="item._isTime">{{ item._timeLabel }}</div>
-              <div
-                v-else
-                class="msg-row"
-                :class="item._mine ? 'me' : 'cs'"
-              >
-                <el-avatar :size="36" class="msg-avatar" v-if="!item._mine">
-                  {{ (activeUsername || '用')[0] }}
-                </el-avatar>
-                <div class="msg-content">
-                  <div class="msg-bubble">{{ item.content }}</div>
-                </div>
-                <el-avatar :size="36" class="msg-avatar me-avatar" v-if="item._mine">我</el-avatar>
-              </div>
-            </template>
-            <el-empty v-if="!chatMessages.length && !chatLoading" description="暂无对话，从左侧选择会话" :image-size="60" />
+          <el-empty v-if="!chatMessages.length && !chatLoading" description="暂无对话" :image-size="48" />
+        </div>
+
+        <!-- 快捷回复 -->
+        <div class="quick-reply-bar" v-if="chatMessages.length">
+          <span
+            v-for="tpl in quickReplyTemplates"
+            :key="tpl"
+            class="quick-reply-tag"
+            @click="insertQuickReply(tpl)"
+          >{{ tpl }}</span>
+        </div>
+
+        <!-- 输入区 -->
+        <div class="chat-footer">
+          <div class="chat-input-row">
+            <el-input
+              v-model="replyText"
+              type="textarea"
+              :rows="2"
+              placeholder="输入回复内容，按 Enter 发送..."
+              resize="none"
+              class="chat-input"
+              maxlength="500"
+              show-word-limit
+              @keydown.enter.exact.prevent="handleAdminReply"
+            />
+            <el-button
+              type="primary"
+              :loading="replyLoading"
+              :disabled="!replyText.trim()"
+              @click="handleAdminReply"
+              class="chat-send-btn"
+              round
+            >发送</el-button>
           </div>
-          <div class="chat-footer">
-            <div class="footer-input-row">
-              <el-input
-                v-model="replyText"
-                type="textarea"
-                :rows="2"
-                placeholder="输入回复内容..."
-                resize="none"
-                class="reply-textarea"
-                @keydown.enter.exact.prevent="handleAdminReply"
-              />
-              <div class="footer-actions">
-                <span class="reply-hint">按 Enter 发送</span>
-                <el-button
-                  type="primary"
-                  :loading="replyLoading"
-                  @click="handleAdminReply"
-                  :disabled="!replyText.trim()"
-                  class="reply-btn"
-                >发送回复</el-button>
-              </div>
-            </div>
-          </div>
-        </el-card>
-        <el-card shadow="never" v-else class="chat-card empty-chat">
-          <el-empty description="选择一个会话开始回复" :image-size="80" />
-        </el-card>
-      </el-col>
-    </el-row>
+        </div>
+      </div>
+
+      <!-- 空状态 -->
+      <div class="chat-panel chat-empty-panel" v-else>
+        <div class="empty-content">
+          <el-icon :size="64" class="empty-icon"><ChatDotRound /></el-icon>
+          <div class="empty-title">ShopNow 客服工作台</div>
+          <div class="empty-desc">选择左侧会话开始回复用户咨询</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -110,10 +140,12 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { adminAPI } from '@/api'
 import { ElMessage } from 'element-plus'
+import { ChatDotRound } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 
 const conversations = ref([])
+const convSearch = ref('')
 const activeUserId = ref(null)
 const activeUsername = ref('')
 const chatMessages = ref([])
@@ -124,19 +156,31 @@ const replyLoading = ref(false)
 const adminChatBodyRef = ref(null)
 let pollTimer = null
 
-const totalUnread = computed(() => conversations.value.reduce((s, c) => s + (c.unread || 0), 0))
+const quickReplyTemplates = [
+  '您好，请问有什么可以帮您？',
+  '请稍等，我帮您查询一下。',
+  '您的问题已收到，会尽快为您处理。',
+  '感谢您的耐心等待。',
+  '如有其他问题，随时联系我们。'
+]
 
-// 处理消息：插入时间分隔（从用户视角反转）
+const totalUnread = computed(() => conversations.value.reduce((s, c) => s + (c.unread || 0), 0))
+const filteredConversations = computed(() => {
+  if (!convSearch.value) return conversations.value
+  const kw = convSearch.value.toLowerCase()
+  return conversations.value.filter(c => (c.username || '').toLowerCase().includes(kw))
+})
+
 const displayChatMessages = computed(() => {
   const result = []
-  const gap = 2 * 60 * 1000
+  const gap = 3 * 60 * 1000
   for (let i = 0; i < chatMessages.value.length; i++) {
     const m = chatMessages.value[i]
     if (i === 0 || (new Date(m.createdAt) - new Date(chatMessages.value[i - 1].createdAt)) > gap) {
       result.push({
         _key: 't' + m.id,
         _isTime: true,
-        _timeLabel: formatDate(m.createdAt)
+        _timeLabel: formatMsgTime(m.createdAt)
       })
     }
     result.push({
@@ -150,14 +194,22 @@ const displayChatMessages = computed(() => {
 
 function formatDate(t) {
   if (!t) return ''
+  return new Date(t).toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function formatMsgTime(t) {
+  if (!t) return ''
   const d = new Date(t)
   const now = new Date()
   const time = d.toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   if (d.toDateString() === now.toDateString()) return time
+  const yesterday = new Date(now)
+  yesterday.setDate(yesterday.getDate() - 1)
+  if (d.toDateString() === yesterday.toDateString()) return '昨天 ' + time
   return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit' }) + ' ' + time
 }
 
-function formatShort(t) {
+function formatConvTime(t) {
   if (!t) return ''
   const d = new Date(t)
   const now = new Date()
@@ -165,6 +217,10 @@ function formatShort(t) {
     return d.toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   }
   return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit' })
+}
+
+function insertQuickReply(text) {
+  replyText.value = text
 }
 
 onMounted(() => {
@@ -241,116 +297,325 @@ function scrollChatBottom() {
 </script>
 
 <style scoped>
-.admin-messages-page { animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-.msg-container { height: calc(100vh - 170px); }
-
-/* ===== 左侧会话列表 ===== */
-.conv-card {
-  height: 100%; display: flex; flex-direction: column;
-  border-radius: 12px; border: 1px solid #eee;
+.admin-cs-page {
+  height: calc(100vh - 160px);
+  padding: 0;
 }
-.conv-card :deep(.el-card__header) { padding: 16px 18px 12px; border-bottom: 1px solid #f0f0f0; }
-.conv-card :deep(.el-card__body) { flex: 1; overflow-y: auto; padding: 0; }
-.conv-card-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: #333; }
 
-.conv-list { display: flex; flex-direction: column; }
+.admin-cs-container {
+  height: 100%;
+  display: flex;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 16px rgba(0,0,0,0.04);
+}
+
+/* ===== 左侧会话面板 ===== */
+.conv-panel {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid #eef0f4;
+  display: flex;
+  flex-direction: column;
+  background: #fafbfc;
+}
+.conv-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+}
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+.panel-title .el-icon { color: #3b5998; font-size: 17px; }
+.conv-search {
+  padding: 0 14px 10px;
+}
+.conv-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.conv-list::-webkit-scrollbar { width: 4px; }
+.conv-list::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 2px; }
+
 .conv-item {
-  display: flex; gap: 12px; padding: 14px 18px; cursor: pointer;
-  border-bottom: 1px solid #f5f5f5; transition: background 0.2s;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
 }
-.conv-item:hover { background: #fef7f2; }
-.conv-item.active { background: #fef2f2; border-left: 3px solid #dc2626; padding-left: 15px; }
-
-.conv-avatar { flex-shrink: 0; background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; font-weight: 600; }
-
-.conv-info { flex: 1; min-width: 0; }
-.conv-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.conv-name { font-size: 14px; color: #333; }
-.conv-time { font-size: 11px; color: #bbb; }
-.conv-bottom { display: flex; justify-content: space-between; align-items: center; }
+.conv-item:hover { background: #f0f2f5; }
+.conv-item.active {
+  background: #eef1f8;
+  border-left-color: #3b5998;
+}
+.conv-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.conv-avatar {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+}
+.conv-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+.conv-body {
+  flex: 1;
+  min-width: 0;
+}
+.conv-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.conv-username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a2e;
+}
+.conv-time {
+  font-size: 11px;
+  color: #b0b0b0;
+}
+.conv-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .conv-preview {
-  font-size: 12px; color: #999; margin: 0;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;
+  font-size: 12px;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
-/* ===== 右侧聊天窗口 ===== */
-.chat-card {
-  height: 100%; display: flex; flex-direction: column;
-  border-radius: 12px; border: 1px solid #eee;
+/* ===== 右侧聊天面板 ===== */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
-.chat-card :deep(.el-card__header) { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; }
-.chat-card :deep(.el-card__body) { flex: 1; display: flex; flex-direction: column; padding: 0; }
-
-.empty-chat {
-  display: flex; align-items: center; justify-content: center;
+.chat-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid #eef0f4;
+  flex-shrink: 0;
 }
-
-.chat-header { display: flex; align-items: center; gap: 12px; }
-.chat-header-avatar { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; font-weight: 600; }
-.chat-header-name { font-size: 16px; font-weight: 600; color: #333; }
-.chat-header-sub { font-size: 12px; color: #999; margin-left: 6px; }
+.chat-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-user-avatar {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-weight: 600;
+}
+.chat-user-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+.chat-user-id {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
 
 /* 消息区 */
 .chat-body {
-  flex: 1; overflow-y: auto; padding: 20px 24px;
-  background: #f5f5f5;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  background: #f7f8fa;
 }
 .chat-body::-webkit-scrollbar { width: 5px; }
 .chat-body::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 3px; }
 
-/* 系统消息 */
-.sys-msg { display: flex; justify-content: center; padding: 8px 0; }
-.sys-text {
-  font-size: 12px; color: #999; background: #e8e8e8;
-  padding: 4px 14px; border-radius: 10px;
+.chat-date-tag {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+.chat-date-tag span {
+  font-size: 12px;
+  color: #b0b0b0;
+  background: #ecedf0;
+  padding: 4px 14px;
+  border-radius: 10px;
 }
 
-/* 消息行 */
-.msg-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
-.msg-row.me { flex-direction: row-reverse; }
-
-/* 头像 */
-.msg-avatar { flex-shrink: 0; font-size: 14px; font-weight: 600; }
-.msg-row.cs .msg-avatar { background: #fff; color: #dc2626; border: 2px solid #fecaca; }
-.msg-row.me .msg-avatar { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
-
-/* 消息内容 */
-.msg-content { max-width: 68%; display: flex; flex-direction: column; }
-.msg-row.me .msg-content { align-items: flex-end; }
-
-/* 气泡 */
-.msg-bubble {
-  padding: 12px 16px; border-radius: 12px; font-size: 14px;
-  line-height: 1.6; word-break: break-word; position: relative;
+/* 消息 */
+.chat-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
 }
-.msg-row.cs .msg-bubble {
-  background: #fff; color: #333; border-top-left-radius: 2px;
+.chat-msg.msg-other {
+  flex-direction: row;
+}
+.chat-msg.msg-mine {
+  flex-direction: row-reverse;
+}
+.chat-msg-avatar {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.msg-other .chat-msg-avatar {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+.msg-mine .chat-msg-avatar,
+.admin-avatar {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+}
+.chat-msg-body {
+  max-width: 62%;
+}
+.chat-msg-name {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+  padding-left: 4px;
+}
+.chat-msg-bubble {
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-word;
+  border-radius: 12px;
+}
+.msg-mine .chat-msg-bubble {
+  background: #fff;
+  color: #333;
+  border-top-left-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
-.msg-row.me .msg-bubble {
-  background: #e8f8ee; color: #333; border-top-right-radius: 2px;
+.msg-other .chat-msg-bubble {
+  background: #3b5998;
+  color: #fff;
+  border-top-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(59,89,152,0.18);
+}
+
+/* 快捷回复 */
+.quick-reply-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #fafbfc;
+  border-top: 1px solid #f0f0f0;
+}
+.quick-reply-tag {
+  font-size: 12px;
+  color: #3b5998;
+  background: #eef1f8;
+  border: 1px solid #dce3f0;
+  padding: 5px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.quick-reply-tag:hover {
+  background: #3b5998;
+  color: #fff;
+  border-color: #3b5998;
 }
 
 /* 输入区 */
 .chat-footer {
-  padding: 14px 20px 18px; background: #fff; border-top: 1px solid #eee;
+  padding: 12px 20px 16px;
+  background: #fff;
+  border-top: 1px solid #eef0f4;
+  flex-shrink: 0;
 }
-.reply-textarea :deep(.el-textarea__inner) {
-  border-radius: 12px; border-color: #e5e7eb; font-size: 14px;
-  padding: 12px 16px; background: #ffffff;
+.chat-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
 }
-.reply-textarea :deep(.el-textarea__inner:focus) {
-  border-color: #10b981; background: #fff;
+.chat-input {
+  flex: 1;
 }
-.footer-actions {
-  display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+.chat-input :deep(.el-textarea__inner) {
+  border-radius: 12px;
+  border-color: #e2e5ea;
+  font-size: 14px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  transition: all 0.2s;
 }
-.reply-hint { font-size: 12px; color: #aaa; }
-.reply-btn {
-  border-radius: 20px; background: #10b981; border-color: #10b981;
-  padding: 8px 24px; font-size: 14px;
+.chat-input :deep(.el-textarea__inner:focus) {
+  border-color: #3b5998;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59,89,152,0.08);
 }
-.reply-btn:hover { background: #059669; border-color: #059669; }
+.chat-send-btn {
+  background: linear-gradient(135deg, #3b5998, #4a6db5);
+  border: none;
+  padding: 10px 24px;
+  font-size: 14px;
+  height: 40px;
+  box-shadow: 0 3px 10px rgba(59,89,152,0.25);
+}
+.chat-send-btn:hover {
+  background: linear-gradient(135deg, #344e86, #3b5998);
+}
+
+/* 空状态 */
+.chat-empty-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f8fa;
+}
+.empty-content {
+  text-align: center;
+}
+.empty-icon {
+  color: #d0d5dd;
+  margin-bottom: 16px;
+}
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+.empty-desc {
+  font-size: 13px;
+  color: #aaa;
+}
 </style>

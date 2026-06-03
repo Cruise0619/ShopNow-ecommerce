@@ -21,6 +21,7 @@
         stripe
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
       >
+        <el-table-column type="index" label="#" width="60" align="center" :index="(idx) => (currentPage - 1) * pageSize + idx + 1" />
         <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="username" label="用户" width="120" />
         <el-table-column prop="productId" label="商品 ID" width="100" align="center" />
@@ -104,7 +105,9 @@ async function loadData() {
     const res = await adminAPI.reviews({
       page: currentPage.value,
       limit: pageSize.value,
-      product_id: filterProductId.value || undefined
+      product_id: filterProductId.value || undefined,
+      sort: 'id',
+      order: 'desc'
     })
     if (res.code === 200) {
       tableData.value = res.data?.list || res.data || []

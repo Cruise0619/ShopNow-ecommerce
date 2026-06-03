@@ -15,6 +15,7 @@
         stripe
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
       >
+        <el-table-column type="index" label="#" width="60" align="center" />
         <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
         <el-table-column label="内容" min-width="300" show-overflow-tooltip>
           <template #default="{ row }">

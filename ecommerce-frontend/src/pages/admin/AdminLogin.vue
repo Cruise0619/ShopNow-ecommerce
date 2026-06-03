@@ -1,5 +1,6 @@
 <template>
   <div class="admin-login-page">
+    <StarryParticles :palette="bluePalette" />
     <div class="login-card">
       <div class="login-header">
         <div class="login-logo">ShopNow</div>
@@ -30,6 +31,20 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { authAPI } from '@/api'
+import StarryParticles from '@/components/StarryParticles.vue'
+
+const bluePalette = [
+  '#ffffff', '#ffffff', '#ffffff', '#ffffff',
+  '#f0f5ff', '#f0f5ff',
+  '#c8dfff',
+  '#69b1ff', '#69b1ff', '#69b1ff',
+  '#4d9fff',
+  '#91caff',
+  '#7ab7ff',
+  '#5a9cff',
+  '#85a5ff',
+  '#2f6fef',
+]
 
 const router = useRouter()
 const formRef = ref(null)
@@ -79,15 +94,15 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #1a1a2e 0%, #1e293b 40%, #1a2332 70%, #16202b 100%);
+  background: linear-gradient(160deg, #0a1628 0%, #0f2440 40%, #0d1b35 70%, #091428 100%);
   position: relative;
 }
 .admin-login-page::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 30% 30%, rgba(220, 38, 38,0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 70%, rgba(239,68,68,0.06) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 30% 30%, rgba(47, 111, 239, 0.10) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 70%, rgba(77, 159, 255, 0.07) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -109,7 +124,7 @@ async function handleLogin() {
 .login-logo {
   font-size: 2rem;
   font-weight: 800;
-  background: var(--color-primary-gradient);
+  background: linear-gradient(135deg, #4d9fff, #2f6fef);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -124,14 +139,14 @@ async function handleLogin() {
 
 .login-btn {
   width: 100%;
-  background: var(--color-primary-gradient);
+  background: linear-gradient(135deg, #4d9fff, #2f6fef);
   border: none;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+  box-shadow: 0 4px 14px rgba(47, 111, 239, 0.35);
 }
 
 .login-btn:hover {
-  background: linear-gradient(135deg, #b91c1c, #dc2626);
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
+  background: linear-gradient(135deg, #3a8eef, #2563eb);
+  box-shadow: 0 6px 20px rgba(47, 111, 239, 0.45);
 }
 
 .login-footer {
@@ -140,7 +155,7 @@ async function handleLogin() {
 }
 
 .login-footer a {
-  color: var(--color-primary);
+  color: #4d9fff;
   font-size: 0.85rem;
   text-decoration: none;
 }

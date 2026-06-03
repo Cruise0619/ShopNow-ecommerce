@@ -103,7 +103,7 @@
 
         <section class="product-section" v-if="flashSaleProducts.length">
           <div class="section-header">
-            <h2 class="section-title flash-section-title">⚡ 限时秒杀</h2>
+            <h2 class="section-title flash-section-title">限时秒杀</h2>
             <router-link to="/products" class="section-more">查看更多 <el-icon><ArrowRight /></el-icon></router-link>
           </div>
           <el-row :gutter="16">
@@ -140,7 +140,25 @@
           </div>
           <el-row :gutter="16" v-if="hotProducts.length">
             <el-col :xs="12" :sm="8" :md="6" v-for="p in hotProducts" :key="p.id">
-              <product-card :product="p" />
+              <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${p.id}`)">
+                <div class="product-image">
+                  <el-image :src="p.coverImage || p.image" fit="cover" lazy class="product-thumb-img">
+                    <template #error><div class="image-error-placeholder">暂无图片</div></template>
+                  </el-image>
+                  <div class="product-tags">
+                    <el-tag v-if="p.is_hot" size="small" type="danger" class="flash-badge-tag">热卖</el-tag>
+                    <el-tag v-if="p.is_new" size="small" type="danger" class="flash-badge-tag">新品</el-tag>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <p class="product-name">{{ p.name }}</p>
+                  <div class="product-price-row">
+                    <span class="product-price flash-price">¥{{ Number(p.price).toFixed(2) }}</span>
+                    <span v-if="p.original_price && p.original_price > p.price" class="product-original-price">¥{{ Number(p.original_price).toFixed(2) }}</span>
+                  </div>
+                  <span class="flash-progress-text">已售 {{ p.sales || 0 }}</span>
+                </div>
+              </el-card>
             </el-col>
           </el-row>
           <el-empty v-else description="暂无商品" />
@@ -153,7 +171,25 @@
           </div>
           <el-row :gutter="16" v-if="newProducts.length">
             <el-col :xs="12" :sm="8" :md="6" v-for="p in newProducts" :key="p.id">
-              <product-card :product="p" />
+              <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${p.id}`)">
+                <div class="product-image">
+                  <el-image :src="p.coverImage || p.image" fit="cover" lazy class="product-thumb-img">
+                    <template #error><div class="image-error-placeholder">暂无图片</div></template>
+                  </el-image>
+                  <div class="product-tags">
+                    <el-tag v-if="p.is_hot" size="small" type="danger" class="flash-badge-tag">热卖</el-tag>
+                    <el-tag v-if="p.is_new" size="small" type="danger" class="flash-badge-tag">新品</el-tag>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <p class="product-name">{{ p.name }}</p>
+                  <div class="product-price-row">
+                    <span class="product-price flash-price">¥{{ Number(p.price).toFixed(2) }}</span>
+                    <span v-if="p.original_price && p.original_price > p.price" class="product-original-price">¥{{ Number(p.original_price).toFixed(2) }}</span>
+                  </div>
+                  <span class="flash-progress-text">已售 {{ p.sales || 0 }}</span>
+                </div>
+              </el-card>
             </el-col>
           </el-row>
           <el-empty v-else description="暂无商品" />
@@ -166,7 +202,25 @@
           </div>
           <el-row :gutter="16">
             <el-col :xs="12" :sm="8" :md="6" v-for="p in promoProducts" :key="p.id">
-              <product-card :product="p" />
+              <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${p.id}`)">
+                <div class="product-image">
+                  <el-image :src="p.coverImage || p.image" fit="cover" lazy class="product-thumb-img">
+                    <template #error><div class="image-error-placeholder">暂无图片</div></template>
+                  </el-image>
+                  <div class="product-tags">
+                    <el-tag v-if="p.is_hot" size="small" type="danger" class="flash-badge-tag">热卖</el-tag>
+                    <el-tag v-if="p.is_new" size="small" type="danger" class="flash-badge-tag">新品</el-tag>
+                  </div>
+                </div>
+                <div class="product-info">
+                  <p class="product-name">{{ p.name }}</p>
+                  <div class="product-price-row">
+                    <span class="product-price flash-price">¥{{ Number(p.price).toFixed(2) }}</span>
+                    <span v-if="p.original_price && p.original_price > p.price" class="product-original-price">¥{{ Number(p.original_price).toFixed(2) }}</span>
+                  </div>
+                  <span class="flash-progress-text">已售 {{ p.sales || 0 }}</span>
+                </div>
+              </el-card>
             </el-col>
           </el-row>
         </section>
@@ -305,7 +359,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, h } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { homeAPI, productAPI, adminAPI, flashsaleAPI } from '@/api'
@@ -314,7 +368,6 @@ import {
   MagicStick, TrophyBase, Reading, Headset, Notebook, Key, Sunny, Timer,
   UserFilled, Tickets, StarFilled, ShoppingCart, Bell, TrendCharts, Clock, Refresh
 } from '@element-plus/icons-vue'
-import { ElImage, ElTag } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -426,49 +479,6 @@ function showAnnouncement(a) {
   import('element-plus').then(({ ElMessageBox }) => {
     ElMessageBox.alert(a.content || a.title, a.title, { confirmButtonText: '知道了' })
   })
-}
-
-// 商品卡片组件
-const productCard = {
-  props: { product: Object },
-  setup(props) {
-    const router = useRouter()
-    function goDetail() {
-      router.push(`/products/${props.product.id}`)
-    }
-    return () => h('el-card', {
-      class: 'product-card',
-      shadow: 'hover',
-      onClick: goDetail
-    }, {
-      default: () => [
-        h('div', { class: 'product-image' }, [
-          h(ElImage, {
-            src: props.product.coverImage || props.product.image,
-            fit: 'cover',
-            lazy: true,
-            class: 'product-thumb-img'
-          }, {
-            error: () => h('div', { class: 'image-error-placeholder' }, '暂无图片')
-          }),
-          h('div', { class: 'product-tags' }, [
-            props.product.is_hot ? h(ElTag, { size: 'small', type: 'danger', class: 'tag' }, () => '热卖') : null,
-            props.product.is_new ? h(ElTag, { size: 'small', type: 'danger', class: 'tag' }, () => '新品') : null
-          ])
-        ]),
-        h('div', { class: 'product-info' }, [
-          h('p', { class: 'product-name' }, props.product.name),
-          h('div', { class: 'product-price-row' }, [
-            h('span', { class: 'product-price' }, `¥${Number(props.product.price).toFixed(2)}`),
-            props.product.original_price && props.product.original_price > props.product.price
-              ? h('span', { class: 'product-original-price' }, `¥${Number(props.product.original_price).toFixed(2)}`)
-              : null
-          ]),
-          h('span', { class: 'product-sales' }, `已售 ${props.product.sales || 0}`)
-        ])
-      ]
-    })
-  }
 }
 
 onMounted(async () => {

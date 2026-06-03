@@ -18,6 +18,7 @@
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
+        <el-table-column type="index" label="#" width="60" align="center" />
         <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="name" label="分类名称" min-width="180" />
         <el-table-column label="父级分类" min-width="150">

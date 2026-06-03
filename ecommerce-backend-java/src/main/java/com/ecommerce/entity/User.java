@@ -10,6 +10,7 @@ import java.util.Date;
 public class User {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    private String uid;
     private String username;
     private String email;
     private String passwordHash;
@@ -22,6 +23,8 @@ public class User {
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
+    public String getUid() { return uid; }
+    public void setUid(String uid) { this.uid = uid; }
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
     public String getEmail() { return email; }

@@ -47,6 +47,7 @@
         stripe
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
       >
+        <el-table-column type="index" label="#" width="60" align="center" :index="(idx) => (currentPage - 1) * pageSize + idx + 1" />
         <el-table-column prop="orderNo" label="订单号" min-width="200" show-overflow-tooltip />
         <el-table-column prop="userId" label="用户 ID" width="90" align="center" />
         <el-table-column label="订单金额" min-width="140" align="center">
@@ -60,6 +61,12 @@
               {{ statusLabel(row.status) }}
             </el-tag>
           </template>
+        </el-table-column>
+        <el-table-column prop="shippingCompany" label="物流公司" width="110" align="center">
+          <template #default="{ row }">{{ row.shippingCompany || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="trackingNo" label="物流单号" width="180" align="center" show-overflow-tooltip>
+          <template #default="{ row }">{{ row.trackingNo || '-' }}</template>
         </el-table-column>
         <el-table-column label="商品数" width="90" align="center">
           <template #default="{ row }">{{ row.items?.length || 0 }}</template>
@@ -96,10 +103,20 @@
       <el-dialog v-model="shipDialogVisible" title="确认发货" width="450px" :close-on-click-modal="false">
         <el-form ref="shipFormRef" :model="shipForm" :rules="shipRules" label-width="80px">
           <el-form-item label="物流公司" prop="company">
-            <el-input v-model="shipForm.company" placeholder="如：顺丰速运" />
+            <el-select v-model="shipForm.company" placeholder="请选择物流公司" style="width: 100%">
+              <el-option
+                v-for="c in courierOptions"
+                :key="c"
+                :label="c"
+                :value="c"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="物流单号" prop="tracking_no">
-            <el-input v-model="shipForm.tracking_no" placeholder="请输入快递单号" />
+            <div style="display: flex; gap: 8px;">
+              <el-input v-model="shipForm.tracking_no" placeholder="自动生成或手动输入" style="flex: 1" />
+              <el-button @click="shipForm.tracking_no = genTrackingNo()">随机生成</el-button>
+            </div>
           </el-form-item>
         </el-form>
         <template #footer>
@@ -187,7 +204,9 @@ async function loadData() {
       order_no: searchOrderNo.value || undefined,
       status: filterStatus.value || undefined,
       start_date: filterDateRange.value?.[0] || undefined,
-      end_date: filterDateRange.value?.[1] || undefined
+      end_date: filterDateRange.value?.[1] || undefined,
+      sort: 'id',
+      order: 'desc'
     })
     if (res.code === 200) {
       tableData.value = res.data?.list || res.data || []
@@ -200,13 +219,31 @@ async function loadData() {
   }
 }
 
+const courierOptions = [
+  '顺丰速运', '中通快递', '圆通速递', '韵达快递',
+  '申通快递', '极兔速递', '京东物流', '德邦快递', 'EMS'
+]
+
+const courierCodes = {
+  '顺丰速运': 'SF', '中通快递': 'ZTO', '圆通速递': 'YTO',
+  '韵达快递': 'YD', '申通快递': 'STO', '极兔速递': 'JT',
+  '京东物流': 'JD', '德邦快递': 'DB', 'EMS': 'EMS'
+}
+
+function genTrackingNo() {
+  const code = courierCodes[shipForm.value.company] || 'EXP'
+  const ts = String(Date.now()).slice(-8)
+  const rand = String(Math.floor(Math.random() * 1000000)).padStart(6, '0')
+  return `${code}${ts}${rand}`
+}
+
 const shipDialogVisible = ref(false)
 const shipLoading = ref(false)
 const shipFormRef = ref(null)
 const shipForm = ref({ company: '', tracking_no: '' })
 const shippingOrderId = ref(null)
 const shipRules = {
-  company: [{ required: true, message: '请输入物流公司', trigger: 'blur' }],
+  company: [{ required: true, message: '请选择物流公司', trigger: 'change' }],
   tracking_no: [{ required: true, message: '请输入物流单号', trigger: 'blur' }]
 }
 

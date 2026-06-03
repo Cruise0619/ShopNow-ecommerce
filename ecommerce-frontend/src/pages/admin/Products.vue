@@ -38,6 +38,7 @@
         stripe
         :header-cell-style="{ background: '#ffffff', color: '#475569', fontWeight: 600 }"
       >
+        <el-table-column type="index" label="#" width="60" align="center" :index="(idx) => (currentPage - 1) * pageSize + idx + 1" />
         <el-table-column label="商品图片" width="90" align="center">
           <template #default="{ row }">
             <el-image
@@ -348,7 +349,9 @@ async function loadData() {
       page_size: pageSize.value,
       keyword: searchKeyword.value || undefined,
       category_id: filterCategory.value || undefined,
-      status: filterStatus.value !== null && filterStatus.value !== '' ? filterStatus.value : undefined
+      status: filterStatus.value !== null && filterStatus.value !== '' ? filterStatus.value : undefined,
+      sort: 'id',
+      order: 'desc'
     })
     if (res.code === 200) {
       tableData.value = res.data?.list || res.data || []

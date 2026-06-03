@@ -38,7 +38,24 @@ public class UserService {
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
         userMapper.insert(user);
+        // Generate UID from the auto-incremented id
+        String uid = String.format("%03d", user.getId());
+        user.setUid(uid);
+        userMapper.updateById(user);
         return user;
+    }
+
+    /** Backfill UIDs for all existing users that lack one. */
+    public int backfillUids() {
+        int count = 0;
+        for (User u : userMapper.selectList(null)) {
+            if (u.getUid() == null || u.getUid().isEmpty()) {
+                u.setUid(String.format("%03d", u.getId()));
+                userMapper.updateById(u);
+                count++;
+            }
+        }
+        return count;
     }
 
     public void updatePassword(Integer userId, String newPassword) {

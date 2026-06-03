@@ -31,6 +31,7 @@ public class Order {
     private Date shippingTime;
     private Date receiveTime;
     private String trackingNo;
+    private String shippingCompany;
     private String payToken;
     private String remark;
     private Date createdAt;
@@ -70,6 +71,8 @@ public class Order {
     public void setReceiveTime(Date receiveTime) { this.receiveTime = receiveTime; }
     public String getTrackingNo() { return trackingNo; }
     public void setTrackingNo(String trackingNo) { this.trackingNo = trackingNo; }
+    public String getShippingCompany() { return shippingCompany; }
+    public void setShippingCompany(String shippingCompany) { this.shippingCompany = shippingCompany; }
     public String getPayToken() { return payToken; }
     public void setPayToken(String payToken) { this.payToken = payToken; }
     public String getRemark() { return remark; }

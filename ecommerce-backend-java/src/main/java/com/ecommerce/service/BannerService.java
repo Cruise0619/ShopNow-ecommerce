@@ -21,6 +21,6 @@ public class BannerService {
     }
 
     public List<Banner> listAll() {
-        return bannerMapper.selectList(new QueryWrapper<Banner>().orderByAsc("sort_order"));
+        return bannerMapper.selectList(new QueryWrapper<Banner>().orderByDesc("id"));
     }
 }
