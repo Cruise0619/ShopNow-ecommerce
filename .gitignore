@@ -22,4 +22,7 @@ ecommerce-backend-java/.idea/
 ecommerce-backend-java/*.iml
 
 # ======== 敏感配置 ========
-ecommerce-backend-java/src/main/resources/application.yml
+.env
+ecommerce-backend-java/uploads/
+*.sql.gz
+*_backup_*.sql

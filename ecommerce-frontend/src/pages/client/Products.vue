@@ -295,7 +295,7 @@ watch(
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 10px 0;
   position: sticky;
   top: 70px;
@@ -359,7 +359,7 @@ watch(
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 10px 14px;
-  border-radius: 4px;
+  border-radius: 10px;
   margin-bottom: 10px;
   flex-wrap: wrap;
   gap: 10px;
@@ -387,7 +387,7 @@ watch(
 }
 
 .filter-right :deep(.el-input__wrapper) {
-  border-radius: 4px;
+  border-radius: 10px;
   box-shadow: none;
   border: 1px solid rgba(226,232,240,0.8);
   transition: all 0.25s;
@@ -400,7 +400,7 @@ watch(
 }
 
 .filter-left :deep(.el-select .el-input__wrapper) {
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 15px;
 }
 
@@ -411,7 +411,7 @@ watch(
 .product-card {
   cursor: pointer;
   margin-bottom: 10px;
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -562,10 +562,10 @@ watch(
     flex-direction: column;
     align-items: stretch;
     padding: 12px 14px;
-    border-radius: 4px;
+    border-radius: 10px;
   }
   .filter-left { overflow-x: auto; padding-bottom: 4px; }
-  .product-card { border-radius: 4px; margin-bottom: 12px; }
+  .product-card { border-radius: 10px; margin-bottom: 12px; }
   .product-card:hover { transform: translateY(-4px); }
 }
 </style>

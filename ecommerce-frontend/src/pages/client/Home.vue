@@ -822,7 +822,7 @@ onBeforeUnmount(() => {
 .rank-badge {
   width: 22px;
   height: 22px;
-  border-radius: 4px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -919,7 +919,7 @@ onBeforeUnmount(() => {
 /* ===== 横幅 ===== */
 .hero-section {
   margin-bottom: 8px;
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
@@ -1001,7 +1001,7 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.9);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 8px;
@@ -1026,7 +1026,7 @@ onBeforeUnmount(() => {
   height: 38px;
   margin: 0 auto 6px;
   background: #ffffff;
-  border-radius: 4px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1101,7 +1101,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  border-radius: 4px;
+  border-radius: 10px;
   transition: all 0.25s;
   background: rgba(220, 38, 38,0.06);
 }
@@ -1115,7 +1115,7 @@ onBeforeUnmount(() => {
 .product-card {
   cursor: pointer;
   margin-bottom: 8px;
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1325,7 +1325,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   font-size: 13px;
   padding: 6px 22px;
-  border-radius: 4px;
+  border-radius: 10px;
   text-decoration: none;
   transition: all 0.3s;
 }
@@ -1383,7 +1383,7 @@ onBeforeUnmount(() => {
   font-size: 16px;
   color: var(--color-primary);
   padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: 10px;
   transition: all 0.25s;
 }
 
@@ -1449,7 +1449,7 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 12px 8px;
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
@@ -1544,13 +1544,13 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   .home-container { padding: 6px 4px; gap: 0; }
-  .hero-section { border-radius: 4px; }
+  .hero-section { border-radius: 10px; }
   .banner-content { margin-left: 28px; }
   .banner-content h2 { font-size: 1.3rem; }
   .section-title { font-size: 1.1rem; }
-  .category-card { border-radius: 4px; padding: 14px 6px 12px; }
-  .category-icon { width: 40px; height: 40px; border-radius: 4px; }
-  .product-card { border-radius: 4px; }
+  .category-card { border-radius: 10px; padding: 14px 6px 12px; }
+  .category-icon { width: 40px; height: 40px; border-radius: 10px; }
+  .product-card { border-radius: 10px; }
   .product-card:hover { transform: translateY(-4px); }
   .service-bar { flex-direction: column; align-items: center; }
   .back-to-top { right: 16px; bottom: 24px; }

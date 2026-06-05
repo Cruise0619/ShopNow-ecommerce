@@ -107,6 +107,8 @@ public class DataSeeder implements CommandLineRunner {
         admin.setRole("admin"); admin.setStatus("active");
         admin.setAvatar("/default-avatar.png");
         userMapper.insert(admin);
+        admin.setUid(String.format("%03d", admin.getId()));
+        userMapper.updateById(admin);
 
         String userHash = passwordEncoder.encode("123456");
         for (int i = 1; i <= 20; i++) {
@@ -118,6 +120,8 @@ public class DataSeeder implements CommandLineRunner {
             u.setRole("user"); u.setStatus("active");
             u.setAvatar("/default-avatar.png");
             userMapper.insert(u);
+            u.setUid(String.format("%03d", u.getId()));
+            userMapper.updateById(u);
         }
     }
 

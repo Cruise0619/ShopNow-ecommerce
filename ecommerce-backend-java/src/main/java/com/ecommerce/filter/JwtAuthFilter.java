@@ -35,7 +35,8 @@ public class JwtAuthFilter implements Filter {
             "/api/announcements",
             "/api/coupons",
             "/api/flashsales",
-            "/api/admin/categories"
+            "/api/admin/categories",
+            "/api/system"
     );
 
     @Autowired

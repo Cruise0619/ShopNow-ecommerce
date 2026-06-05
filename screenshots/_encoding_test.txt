@@ -1,7 +1,0 @@
-String: 详情按钮
-Bytes: e8afa6e68385e68c89e992ae
-Length: 4
-  Char 0: U+8BE6 详
-  Char 1: U+60C5 情
-  Char 2: U+6309 按
-  Char 3: U+94AE 钮

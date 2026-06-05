@@ -1,2 +1,0 @@
-app_user_list|D:\Desktop\Web大作业\screenshots\app__admin_user_list.png
-app_user_search|D:\Desktop\Web大作业\screenshots\app__admin_user_search.png
