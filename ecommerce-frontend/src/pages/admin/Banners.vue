@@ -21,7 +21,7 @@
           <template #default="{ row }">
             <el-image
               :src="row.imageUrl"
-              style="width: 100px; height: 56px; border-radius: 8px;"
+              style="width: 100px; height: 56px; border-radius: 3px;"
               fit="cover"
               lazy
               :preview-src-list="[row.imageUrl]"
@@ -82,7 +82,7 @@
             accept="image/*"
           >
             <template v-if="form.image_url">
-              <el-image :src="form.image_url" style="width:200px;height:100px;border-radius:8px" fit="cover" />
+              <el-image :src="form.image_url" style="width:200px;height:100px;border-radius:3px" fit="cover" />
               <div class="upload-overlay">
                 <el-icon><Edit /></el-icon>
                 <span>点击更换图片</span>
@@ -95,8 +95,13 @@
             </template>
           </el-upload>
         </el-form-item>
+        <el-form-item label="关联商品">
+          <el-select v-model="form.product_id" placeholder="选择跳转商品（可选）" clearable filterable style="width: 100%">
+            <el-option v-for="p in productOptions" :key="p.id" :label="p.name + ' (¥' + Number(p.price).toFixed(2) + ')'" :value="p.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="链接地址">
-          <el-input v-model="form.link_url" placeholder="请输入跳转链接" />
+          <el-input v-model="form.link_url" placeholder="自定义链接（优先级低于关联商品）" />
         </el-form-item>
         <el-form-item label="排序" prop="sort_order">
           <el-input-number v-model="form.sort_order" :min="0" :max="999" controls-position="right" style="width: 160px" />
@@ -127,11 +132,14 @@ const isEdit = ref(false)
 const uploadUrl = '/api/admin/banners/upload-image'
 const uploadHeaders = { Authorization: `Bearer ${localStorage.getItem('token') || ''}` }
 
+const productOptions = ref([])
+
 const form = reactive({
   id: null,
   title: '',
   image_url: '',
   link_url: '',
+  product_id: null,
   sort_order: 0,
   status: 'on'
 })
@@ -163,11 +171,12 @@ function openDialog(row = null) {
     form.title = row.title || ''
     form.image_url = row.imageUrl || ''
     form.link_url = row.linkUrl || ''
+    form.product_id = row.productId || null
     form.sort_order = row.sortOrder || 0
     form.status = row.status ?? 'on'
   } else {
     isEdit.value = false
-    Object.assign(form, { id: null, title: '', image_url: '', link_url: '', sort_order: 0, status: 'on' })
+    Object.assign(form, { id: null, title: '', image_url: '', link_url: '', product_id: null, sort_order: 0, status: 'on' })
   }
   dialogVisible.value = true
 }
@@ -209,6 +218,7 @@ async function handleSubmit() {
       title: form.title,
       imageUrl: form.image_url,
       linkUrl: form.link_url,
+      productId: form.product_id || null,
       sortOrder: form.sort_order,
       status: form.status
     }
@@ -242,7 +252,16 @@ async function handleDelete(id) {
   }
 }
 
-onMounted(() => { loadData() })
+async function loadProducts() {
+  try {
+    const res = await adminAPI.products({ page: 1, page_size: 9999 })
+    if (res.code === 200) {
+      productOptions.value = res.data?.list || res.data || []
+    }
+  } catch { /* ignore */ }
+}
+
+onMounted(() => { loadData(); loadProducts() })
 </script>
 
 <style scoped>
@@ -256,7 +275,7 @@ onMounted(() => { loadData() })
 }
 
 .page-card {
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid var(--color-border-light);
 }
 
@@ -279,7 +298,7 @@ onMounted(() => { loadData() })
 
 .banner-upload :deep(.el-upload) {
   border: 2px dashed var(--color-border);
-  border-radius: 10px;
+  border-radius: 4px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -309,7 +328,7 @@ onMounted(() => { loadData() })
   font-size: 0.85rem;
   opacity: 0;
   transition: opacity 0.3s;
-  border-radius: 8px;
+  border-radius: 3px;
 }
 
 .banner-upload :deep(.el-upload):hover .upload-overlay {

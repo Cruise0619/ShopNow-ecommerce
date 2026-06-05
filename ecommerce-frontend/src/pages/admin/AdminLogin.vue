@@ -29,6 +29,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { authAPI } from '@/api'
 import StarryParticles from '@/components/StarryParticles.vue'
@@ -47,6 +48,7 @@ const bluePalette = [
 ]
 
 const router = useRouter()
+const userStore = useUserStore()
 const formRef = ref(null)
 const loading = ref(false)
 
@@ -70,6 +72,8 @@ async function handleLogin() {
     if (res.code === 200) {
       const user = res.data.user
       if (user.role === 'admin') {
+        userStore.token = res.data.token
+        userStore.user = user
         localStorage.setItem('token', res.data.token)
         localStorage.setItem('user', JSON.stringify(user))
         ElMessage.success('登录成功')
@@ -111,7 +115,7 @@ async function handleLogin() {
   padding: 48px 40px 36px;
   background: rgba(255,255,255,0.97);
   backdrop-filter: blur(20px);
-  border-radius: 12px;
+  border-radius: 4px;
   box-shadow: var(--shadow-xl);
   border: 1px solid rgba(255,255,255,0.15);
 }

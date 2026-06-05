@@ -157,7 +157,7 @@ async function handleRemove(fav) {
 
 .favorite-card {
   margin-bottom: 12px;
-  border-radius: 14px;
+  border-radius: 4px;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -178,7 +178,7 @@ async function handleRemove(fav) {
 .fav-image {
   cursor: pointer;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 3px;
   margin-bottom: 4px;
   aspect-ratio: 4 / 3;
   background: #f8fafc;

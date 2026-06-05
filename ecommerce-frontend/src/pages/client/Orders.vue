@@ -36,7 +36,7 @@
               <el-image
                 :src="item.product?.coverImage || item.product?.image || item.image"
                 fit="cover"
-                style="width: 72px; height: 72px; border-radius: 8px; flex-shrink: 0"
+                style="width: 72px; height: 72px; border-radius: 3px; flex-shrink: 0"
               />
               <div class="order-item-info">
                 <p class="order-item-name">{{ item.product?.name || item.name }}</p>
@@ -442,7 +442,7 @@ function openLogistics(order) {
 
 .order-card {
   background: var(--gradient-card);
-  border-radius: 12px;
+  border-radius: 4px;
   margin-bottom: 12px;
   overflow: hidden;
   transition: box-shadow 0.3s;
@@ -594,7 +594,7 @@ function openLogistics(order) {
   background: linear-gradient(135deg, #dc2626, #ef4444);
   color: #fff;
   padding: 4px 16px;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 13px;
   font-weight: 600;
 }
@@ -602,7 +602,7 @@ function openLogistics(order) {
 .qr-code-wrapper {
   width: 200px;
   height: 200px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   border: 3px solid #dc2626;

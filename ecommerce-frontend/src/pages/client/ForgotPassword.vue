@@ -231,7 +231,7 @@ onBeforeUnmount(() => {
   max-width: 100%;
   background: rgba(255,255,255,0.97);
   backdrop-filter: blur(20px);
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 28px;
   box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
@@ -258,7 +258,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 46px;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--color-primary-gradient);
   border: none;
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);

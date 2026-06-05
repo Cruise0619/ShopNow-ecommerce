@@ -75,7 +75,7 @@
                 {{ item.content }}
               </div>
             </div>
-            <el-avatar :size="36" class="msg-avatar mine-avatar" v-if="item._mine">
+            <el-avatar :size="36" class="msg-avatar mine-avatar" v-if="item._mine" :src="userStore.user?.avatar">
               {{ (userStore.user?.username || '我')[0] }}
             </el-avatar>
           </div>
@@ -254,13 +254,13 @@ function scrollToBottom() {
   max-width: 780px;
   margin: 0 auto;
   padding: 16px 16px 0;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 120px);
 }
 
 .cs-container {
   height: 100%;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -308,7 +308,7 @@ function scrollToBottom() {
   font-size: 11px;
   background: rgba(255,255,255,0.2);
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 4px;
   font-weight: 400;
 }
 .cs-brand-desc {
@@ -365,7 +365,7 @@ function scrollToBottom() {
   align-items: center;
   gap: 16px;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 20px 28px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.04);
   margin-bottom: 24px;
@@ -407,7 +407,7 @@ function scrollToBottom() {
   color: #3b5998;
   background: #fff;
   border: 1px solid #dce3f0;
-  border-radius: 20px;
+  border-radius: 4px;
   padding: 10px 18px;
   cursor: pointer;
   transition: all 0.2s;
@@ -433,7 +433,7 @@ function scrollToBottom() {
   color: #b0b0b0;
   background: #ecedf0;
   padding: 4px 14px;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 .cs-empty {
   text-align: center;
@@ -475,7 +475,7 @@ function scrollToBottom() {
   font-size: 14px;
   line-height: 1.65;
   word-break: break-word;
-  border-radius: 14px;
+  border-radius: 4px;
   position: relative;
 }
 .cs-msg.msg-cs .msg-bubble {
@@ -514,7 +514,7 @@ function scrollToBottom() {
   flex: 1;
 }
 .input-textarea :deep(.el-textarea__inner) {
-  border-radius: 12px;
+  border-radius: 4px;
   border-color: #e2e5ea;
   font-size: 14px;
   padding: 10px 14px;

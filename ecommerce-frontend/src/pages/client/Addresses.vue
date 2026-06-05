@@ -332,7 +332,7 @@ async function handleSetDefault(addr) {
 .address-card {
   background: var(--gradient-card);
   border: 1px solid var(--color-border-light);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 14px;
   margin-bottom: 12px;
   display: flex;

@@ -90,7 +90,7 @@
                 <el-image
                   :src="item.product?.coverImage || item.product?.image"
                   fit="cover"
-                  style="width: 60px; height: 60px; border-radius: 8px; flex-shrink: 0"
+                  style="width: 60px; height: 60px; border-radius: 3px; flex-shrink: 0"
                 />
                 <div class="summary-item-info">
                   <p class="summary-item-name">{{ item.product?.name }}</p>
@@ -500,7 +500,7 @@ async function handleSubmitOrder() {
 
 .section-card {
   margin-bottom: 14px;
-  border-radius: 12px;
+  border-radius: 4px;
 }
 
 .section-header {
@@ -527,7 +527,7 @@ async function handleSubmitOrder() {
 
 .address-card {
   border: 2px solid var(--color-border-light);
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 10px 14px;
   cursor: pointer;
   transition: border-color 0.3s;
@@ -585,7 +585,7 @@ async function handleSubmitOrder() {
 }
 
 .order-summary-card {
-  border-radius: 12px;
+  border-radius: 4px;
 }
 
 .summary-title {
@@ -685,7 +685,7 @@ async function handleSubmitOrder() {
   width: 100%;
   height: 42px;
   font-size: 15px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--color-primary-gradient);
   border: none;
   margin-top: 12px;
@@ -708,7 +708,7 @@ async function handleSubmitOrder() {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 16px;
@@ -739,7 +739,7 @@ async function handleSubmitOrder() {
   justify-content: center;
   background: #fff;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
 }

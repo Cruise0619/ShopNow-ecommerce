@@ -366,7 +366,7 @@ async function handleChangePassword() {
 }
 
 .sidebar-card {
-  border-radius: 12px;
+  border-radius: 4px;
   text-align: center;
   background: var(--gradient-card);
   border: 1px solid var(--color-border-light);
@@ -417,12 +417,12 @@ async function handleChangePassword() {
 .sidebar-menu .el-menu-item {
   height: 44px;
   line-height: 44px;
-  border-radius: 8px;
+  border-radius: 3px;
   margin: 2px 8px;
 }
 
 .content-card {
-  border-radius: 12px;
+  border-radius: 4px;
   min-height: 400px;
   background: var(--gradient-card);
   border: 1px solid var(--color-border-light);

@@ -314,7 +314,7 @@ onMounted(() => {
 }
 
 .page-card {
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid var(--color-border-light);
 }
 

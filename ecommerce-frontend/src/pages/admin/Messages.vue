@@ -81,7 +81,7 @@
                 <div class="chat-msg-name" v-if="!item._mine">{{ activeUsername }}</div>
                 <div class="chat-msg-bubble">{{ item.content }}</div>
               </div>
-              <el-avatar :size="34" class="chat-msg-avatar admin-avatar" v-if="item._mine">我</el-avatar>
+              <el-avatar :size="34" class="chat-msg-avatar admin-avatar" v-if="item._mine" :src="userStore.user?.avatar">我</el-avatar>
             </div>
           </template>
           <el-empty v-if="!chatMessages.length && !chatLoading" description="暂无对话" :image-size="48" />
@@ -298,7 +298,7 @@ function scrollChatBottom() {
 
 <style scoped>
 .admin-cs-page {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 80px);
   padding: 0;
 }
 
@@ -306,7 +306,7 @@ function scrollChatBottom() {
   height: 100%;
   display: flex;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 1px 16px rgba(0,0,0,0.04);
 }
@@ -469,7 +469,7 @@ function scrollChatBottom() {
   color: #b0b0b0;
   background: #ecedf0;
   padding: 4px 14px;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 /* 消息 */
@@ -513,7 +513,7 @@ function scrollChatBottom() {
   font-size: 14px;
   line-height: 1.6;
   word-break: break-word;
-  border-radius: 12px;
+  border-radius: 4px;
 }
 .msg-mine .chat-msg-bubble {
   background: #fff;
@@ -543,7 +543,7 @@ function scrollChatBottom() {
   background: #eef1f8;
   border: 1px solid #dce3f0;
   padding: 5px 12px;
-  border-radius: 14px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
@@ -570,7 +570,7 @@ function scrollChatBottom() {
   flex: 1;
 }
 .chat-input :deep(.el-textarea__inner) {
-  border-radius: 12px;
+  border-radius: 4px;
   border-color: #e2e5ea;
   font-size: 14px;
   padding: 10px 14px;

@@ -190,7 +190,7 @@
                     :key="idx"
                     :src="img"
                     fit="cover"
-                    style="width: 80px; height: 80px; margin-right: 8px; border-radius: 8px"
+                    style="width: 80px; height: 80px; margin-right: 8px; border-radius: 3px"
                     :preview-src-list="(r.images || [])"
                     preview-teleported
                   />
@@ -502,7 +502,7 @@ onBeforeUnmount(() => {
 .main-image {
   width: 100%;
   height: 340px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   background: #ffffff;
 }
@@ -515,7 +515,7 @@ onBeforeUnmount(() => {
 
 .thumbnail-item {
   border: 2px solid transparent;
-  border-radius: 8px;
+  border-radius: 3px;
   cursor: pointer;
   overflow: hidden;
   transition: border-color 0.3s;
@@ -547,7 +547,7 @@ onBeforeUnmount(() => {
 .price-section {
   background: #ffffff;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   margin-bottom: 14px;
   display: flex;
   align-items: baseline;
@@ -625,13 +625,13 @@ onBeforeUnmount(() => {
 
 .detail-content :deep(img) {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: 3px;
 }
 
 .review-form {
   background: #f8fafc;
   border: 1px solid var(--color-border-light);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
 }

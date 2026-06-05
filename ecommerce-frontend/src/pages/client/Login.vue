@@ -134,7 +134,7 @@ if (savedRememberMe === 'true' && savedUsername) {
   width: 420px;
   max-width: 100%;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 40px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
@@ -177,7 +177,7 @@ if (savedRememberMe === 'true' && savedUsername) {
   width: 100%;
   height: 46px;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--color-primary-gradient);
   border: none;
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);

@@ -200,7 +200,7 @@ onMounted(() => { loadData() })
 }
 
 .page-card {
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid var(--color-border-light);
 }
 
@@ -231,7 +231,7 @@ onMounted(() => { loadData() })
 .feedback-content-box {
   background: var(--color-border-light);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 3px;
   padding: 14px 16px;
 }
 

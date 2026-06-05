@@ -38,7 +38,7 @@
                 v-for="(img, i) in row.images.slice(0, 3)"
                 :key="i"
                 :src="img"
-                style="width:32px;height:32px;border-radius:6px;margin:0 2px"
+                style="width:32px;height:32px;border-radius:3px;margin:0 2px"
                 fit="cover"
                 :preview-src-list="row.images"
               />
@@ -146,7 +146,7 @@ onMounted(() => { loadData() })
 }
 
 .page-card {
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid var(--color-border-light);
 }
 

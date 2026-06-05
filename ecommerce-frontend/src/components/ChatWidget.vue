@@ -58,7 +58,7 @@
               <div class="msg-content">
                 <div class="msg-bubble">{{ item.content }}</div>
               </div>
-              <el-avatar :size="34" class="msg-avatar me-avatar" v-if="item._mine">
+              <el-avatar :size="34" class="msg-avatar me-avatar" v-if="item._mine" :src="userStore.user?.avatar">
                 {{ (userStore.user?.username || '我')[0] }}
               </el-avatar>
             </div>
@@ -227,7 +227,7 @@ function scrollBottom() {
 
 /* ===== 面板 ===== */
 .chat-panel {
-  width: 380px; height: 540px; background: #f5f6fa; border-radius: 12px;
+  width: 380px; height: 540px; background: #f5f6fa; border-radius: 4px;
   display: flex; flex-direction: column; overflow: hidden;
   box-shadow: 0 8px 40px rgba(0,0,0,0.15);
 }
@@ -243,7 +243,7 @@ function scrollBottom() {
 .header-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .header-name { font-size: 15px; font-weight: 600; }
 .header-sub { font-size: 11px; opacity: 0.85; margin-top: 1px; }
-.header-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); }
+.header-tag { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(255,255,255,0.2); }
 .close-btn { color: #fff; opacity: 0.8; flex-shrink: 0; }
 .close-btn:hover { opacity: 1; }
 
@@ -259,7 +259,7 @@ function scrollBottom() {
 .sys-msg { display: flex; justify-content: center; padding: 8px 0; }
 .sys-text {
   font-size: 11px; color: #999; background: #e8e8e8;
-  padding: 4px 14px; border-radius: 10px; max-width: 85%;
+  padding: 4px 14px; border-radius: 3px; max-width: 85%;
   text-align: center; line-height: 1.5;
 }
 
@@ -267,7 +267,7 @@ function scrollBottom() {
 .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 16px; justify-content: center; }
 .quick-chip {
   font-size: 12px; color: #dc2626; background: #fff;
-  border: 1px solid #fca5a5; border-radius: 20px;
+  border: 1px solid #fca5a5; border-radius: 4px;
   padding: 7px 14px; cursor: pointer; user-select: none;
   transition: all 0.2s; white-space: nowrap;
 }
@@ -293,7 +293,7 @@ function scrollBottom() {
 
 /* 气泡 */
 .msg-bubble {
-  padding: 10px 14px; border-radius: 12px; font-size: 13px;
+  padding: 10px 14px; border-radius: 4px; font-size: 13px;
   line-height: 1.55; word-break: break-word; position: relative;
 }
 .msg-row.cs .msg-bubble {
@@ -301,7 +301,7 @@ function scrollBottom() {
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 .msg-row.me .msg-bubble {
-  background: #fff0e6; color: #333; border-top-right-radius: 2px;
+  background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-top-right-radius: 2px;
 }
 
 /* ===== 输入区 ===== */
@@ -311,14 +311,14 @@ function scrollBottom() {
 }
 .input-row { display: flex; gap: 8px; align-items: center; }
 .chat-input :deep(.el-input__wrapper) {
-  border-radius: 20px; background: #f5f6fa; border: none;
+  border-radius: 4px; background: #f5f6fa; border: none;
   box-shadow: none; padding: 2px 14px;
 }
 .chat-input :deep(.el-input__wrapper:focus),
 .chat-input :deep(.el-input__wrapper:hover) { background: #f0f1f5; }
 .chat-input :deep(.el-input__inner) { font-size: 13px; }
 .send-btn {
-  border-radius: 20px; background: #dc2626; border-color: #dc2626;
+  border-radius: 4px; background: #dc2626; border-color: #dc2626;
   padding: 6px 18px; font-size: 13px;
 }
 .send-btn:hover { background: #ef4444; border-color: #ef4444; }

@@ -12,7 +12,26 @@ export const useUserStore = defineStore('user', () => {
   function loadFromStorage() {
     token.value = localStorage.getItem('token') || '';
     const saved = localStorage.getItem('user');
-    if (saved) try { user.value = JSON.parse(saved); } catch { user.value = null; }
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Detect and clean plugin-persisted format: { user: {...}, token: "..." }
+        if (parsed && typeof parsed === 'object' && 'token' in parsed && 'user' in parsed) {
+          // Plugin format detected — extract the real user and token
+          token.value = parsed.token || '';
+          user.value = parsed.user || null;
+          // Overwrite corrupted data with clean format
+          localStorage.setItem('token', token.value);
+          if (user.value) {
+            localStorage.setItem('user', JSON.stringify(user.value));
+          } else {
+            localStorage.removeItem('user');
+          }
+        } else {
+          user.value = parsed;
+        }
+      } catch { user.value = null; }
+    }
   }
 
   async function login(data) {
@@ -45,4 +64,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return { user, token, isLoggedIn, isAdmin, loadFromStorage, login, register, logout };
+}, {
+  persist: false
 });

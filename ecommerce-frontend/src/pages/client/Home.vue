@@ -60,12 +60,12 @@
       <!-- 主体内容 -->
       <main class="home-main">
         <section class="hero-section" v-if="banners.length">
-          <el-carousel :interval="5000" arrow="always" height="240px" indicator-position="outside">
+          <el-carousel :interval="5000" arrow="always" height="320px" indicator-position="outside">
             <el-carousel-item v-for="item in banners" :key="item.id">
               <div
                 class="banner-slide"
                 :style="{ backgroundImage: `url(${item.imageUrl})` }"
-                @click="$router.push(item.linkUrl || '/products')"
+                @click="$router.push(item.productId ? '/products/detail/' + item.productId : (item.linkUrl || '/products'))"
               >
                 <div class="banner-content">
                   <h2>{{ item.title }}</h2>
@@ -242,7 +242,10 @@
         <!-- 用户面板 -->
         <div class="sidebar-card">
           <div class="user-panel" v-if="userStore.isLoggedIn">
-            <div class="user-avatar">{{ userStore.user?.username?.charAt(0)?.toUpperCase() }}</div>
+            <el-avatar :src="userStore.user?.avatar" :size="44" class="user-avatar-img" v-if="userStore.user?.avatar">
+              {{ userStore.user?.username?.charAt(0)?.toUpperCase() }}
+            </el-avatar>
+            <div class="user-avatar" v-else>{{ userStore.user?.username?.charAt(0)?.toUpperCase() }}</div>
             <div class="user-info">
               <p class="user-name">{{ userStore.user?.username }}</p>
               <p class="user-sub">欢迎回来</p>
@@ -625,7 +628,7 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 10px;
+  border-radius: 3px;
   padding: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
   border: 1px solid rgba(226,232,240,0.8);
@@ -673,6 +676,13 @@ onBeforeUnmount(() => {
   font-size: 16px;
   flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+.user-avatar-img {
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+.user-avatar-img :deep(img) {
+  object-fit: cover;
 }
 
 .guest-avatar {
@@ -731,7 +741,7 @@ onBeforeUnmount(() => {
   color: var(--color-text-muted);
   text-decoration: none;
   padding: 8px 4px;
-  border-radius: 10px;
+  border-radius: 3px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   background: rgba(248,250,252,0.5);
 }
@@ -800,7 +810,7 @@ onBeforeUnmount(() => {
   gap: 8px;
   cursor: pointer;
   padding: 4px 4px;
-  border-radius: 8px;
+  border-radius: 3px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -812,7 +822,7 @@ onBeforeUnmount(() => {
 .rank-badge {
   width: 22px;
   height: 22px;
-  border-radius: 7px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -831,7 +841,7 @@ onBeforeUnmount(() => {
 .rank-thumb {
   width: 42px;
   height: 42px;
-  border-radius: 8px;
+  border-radius: 3px;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -870,7 +880,7 @@ onBeforeUnmount(() => {
   gap: 8px;
   cursor: pointer;
   padding: 4px 4px;
-  border-radius: 8px;
+  border-radius: 3px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -882,7 +892,7 @@ onBeforeUnmount(() => {
 .history-thumb {
   width: 42px;
   height: 42px;
-  border-radius: 8px;
+  border-radius: 3px;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -909,7 +919,7 @@ onBeforeUnmount(() => {
 /* ===== 横幅 ===== */
 .hero-section {
   margin-bottom: 8px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
@@ -991,7 +1001,7 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.9);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-radius: 12px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 8px;
@@ -1016,7 +1026,7 @@ onBeforeUnmount(() => {
   height: 38px;
   margin: 0 auto 6px;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1091,7 +1101,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 4px;
   transition: all 0.25s;
   background: rgba(220, 38, 38,0.06);
 }
@@ -1105,7 +1115,7 @@ onBeforeUnmount(() => {
 .product-card {
   cursor: pointer;
   margin-bottom: 8px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1315,7 +1325,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
   font-size: 13px;
   padding: 6px 22px;
-  border-radius: 20px;
+  border-radius: 4px;
   text-decoration: none;
   transition: all 0.3s;
 }
@@ -1393,7 +1403,7 @@ onBeforeUnmount(() => {
   gap: 8px;
   cursor: pointer;
   padding: 4px 4px;
-  border-radius: 8px;
+  border-radius: 3px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1405,7 +1415,7 @@ onBeforeUnmount(() => {
 .recommend-thumb {
   width: 48px;
   height: 48px;
-  border-radius: 8px;
+  border-radius: 3px;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -1439,7 +1449,7 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 12px 8px;
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
@@ -1463,7 +1473,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
@@ -1534,13 +1544,13 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   .home-container { padding: 6px 4px; gap: 0; }
-  .hero-section { border-radius: 12px; }
+  .hero-section { border-radius: 4px; }
   .banner-content { margin-left: 28px; }
   .banner-content h2 { font-size: 1.3rem; }
   .section-title { font-size: 1.1rem; }
-  .category-card { border-radius: 12px; padding: 14px 6px 12px; }
-  .category-icon { width: 40px; height: 40px; border-radius: 12px; }
-  .product-card { border-radius: 12px; }
+  .category-card { border-radius: 4px; padding: 14px 6px 12px; }
+  .category-icon { width: 40px; height: 40px; border-radius: 4px; }
+  .product-card { border-radius: 4px; }
   .product-card:hover { transform: translateY(-4px); }
   .service-bar { flex-direction: column; align-items: center; }
   .back-to-top { right: 16px; bottom: 24px; }

@@ -209,7 +209,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-card {
-  border-radius: 12px;
+  border-radius: 4px;
   transition: transform 0.2s;
   border: 1px solid var(--color-border-light);
 }
@@ -227,7 +227,7 @@ onBeforeUnmount(() => {
 .stat-icon {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;

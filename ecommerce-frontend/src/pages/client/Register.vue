@@ -228,7 +228,7 @@ async function handleRegister() {
   width: 460px;
   max-width: 100%;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 28px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
@@ -265,7 +265,7 @@ async function handleRegister() {
   width: 100%;
   height: 46px;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--color-primary-gradient);
   border: none;
   margin-top: 8px;

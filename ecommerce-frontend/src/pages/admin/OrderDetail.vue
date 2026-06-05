@@ -70,7 +70,7 @@
           <el-table :data="order.items || []" style="width: 100%" stripe>
             <el-table-column label="商品图片" width="80" align="center">
               <template #default="{ row }">
-                <el-image :src="row.product?.coverImage || row.product?.image || 'https://placehold.co/48x48/f1f5f9/94a3b8'" style="width:48px;height:48px;border-radius:8px" fit="cover" />
+                <el-image :src="row.product?.coverImage || row.product?.image || 'https://placehold.co/48x48/f1f5f9/94a3b8'" style="width:48px;height:48px;border-radius:3px" fit="cover" />
               </template>
             </el-table-column>
             <el-table-column label="商品名称" min-width="200" show-overflow-tooltip>
@@ -334,7 +334,7 @@ onMounted(() => { loadDetail() })
 
 .detail-card {
   border: 1px solid var(--color-border-light);
-  border-radius: 12px;
+  border-radius: 4px;
   margin-bottom: 20px;
 }
 

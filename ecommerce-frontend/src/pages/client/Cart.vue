@@ -24,7 +24,7 @@
                   :src="row.product?.coverImage || row.product?.image || row.image"
                   fit="cover"
                   lazy
-                  style="width: 80px; height: 80px; border-radius: 8px; flex-shrink: 0"
+                  style="width: 80px; height: 80px; border-radius: 3px; flex-shrink: 0"
                 />
                 <div class="cart-product-info">
                   <p class="cart-product-name">{{ row.product?.name || row.name }}</p>
@@ -218,7 +218,7 @@ function handleCheckout() {
 
 .cart-container {
   background: var(--gradient-card);
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: var(--shadow-xs);
   border: 1px solid var(--color-border-light);
@@ -309,7 +309,7 @@ function handleCheckout() {
   height: 42px;
   padding: 0 28px;
   font-size: 15px;
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--color-primary-gradient);
   border: none;
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);

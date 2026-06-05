@@ -74,7 +74,7 @@
                 <el-image
                   :src="row.product?.coverImage || row.product?.image || row.image"
                   fit="cover"
-                  style="width: 64px; height: 64px; border-radius: 8px"
+                  style="width: 64px; height: 64px; border-radius: 3px"
                 />
                 <div class="table-product-info">
                   <p class="table-product-name">{{ row.product?.name || row.name }}</p>
@@ -434,7 +434,7 @@ async function handleConfirm() {
 
 .detail-card {
   margin-bottom: 20px;
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid var(--color-border-light);
 }
 
@@ -627,7 +627,7 @@ async function handleConfirm() {
   background: linear-gradient(135deg, #dc2626, #ef4444);
   color: #fff;
   padding: 4px 16px;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 13px;
   font-weight: 600;
 }
@@ -635,7 +635,7 @@ async function handleConfirm() {
 .qr-code-wrapper {
   width: 200px;
   height: 200px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   border: 3px solid #dc2626;

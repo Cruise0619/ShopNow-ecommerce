@@ -303,7 +303,7 @@ onMounted(loadOrder)
 .pay-item-img {
   width: 64px;
   height: 64px;
-  border-radius: 8px;
+  border-radius: 3px;
   object-fit: cover;
   background: #f3f4f6;
   flex-shrink: 0;
@@ -350,7 +350,7 @@ onMounted(loadOrder)
 /* Amounts */
 .pay-amounts {
   background: #f9fafb;
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 14px 16px;
   margin-bottom: 16px;
 }
@@ -417,7 +417,7 @@ onMounted(loadOrder)
   width: 100%;
   height: 50px;
   border: none;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 17px;
   font-weight: 600;
   cursor: pointer;
@@ -520,7 +520,7 @@ onMounted(loadOrder)
     padding: 40px 0;
   }
   .payment-container {
-    border-radius: 16px;
+    border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     max-height: calc(100vh - 80px);

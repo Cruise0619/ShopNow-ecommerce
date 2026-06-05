@@ -43,12 +43,12 @@
           <template #default="{ row }">
             <el-image
               :src="getImageSrc(row)"
-              style="width: 56px; height: 56px; border-radius: 8px;"
+              style="width: 56px; height: 56px; border-radius: 3px;"
               fit="cover"
               lazy
             >
               <template #error>
-                <div class="image-slot" style="width:56px;height:56px;background:#ffffff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94a3b8">无图</div>
+                <div class="image-slot" style="width:56px;height:56px;background:#ffffff;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94a3b8">无图</div>
               </template>
             </el-image>
           </template>
@@ -172,7 +172,7 @@
           <div v-if="isEdit && existingImages.length" class="existing-images">
             <p class="existing-label">当前已保存的图片（存储路径）：</p>
             <div v-for="(img, idx) in existingImages" :key="idx" class="existing-img-item">
-              <el-image :src="imgFullUrl(img)" style="width:100px;height:100px;border-radius:8px" fit="cover" />
+              <el-image :src="imgFullUrl(img)" style="width:100px;height:100px;border-radius:3px" fit="cover" />
               <span class="img-path">{{ img }}</span>
               <el-button type="danger" size="small" circle :icon="Delete" @click="removeExistingImage(idx)" />
             </div>
@@ -565,7 +565,7 @@ onMounted(() => {
 }
 
 .page-card {
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid var(--color-border-light);
 }
 
@@ -609,7 +609,7 @@ onMounted(() => {
   margin-top: 16px;
   padding: 12px;
   background: var(--color-border-light);
-  border-radius: 8px;
+  border-radius: 3px;
 }
 
 .existing-label {

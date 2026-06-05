@@ -82,4 +82,6 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   return { items, selectedItems, totalCount, totalAmount, fetchCart, addToCart, updateQuantity, removeItem, removeBatch, toggleSelect, selectAll };
+}, {
+  persist: false
 });

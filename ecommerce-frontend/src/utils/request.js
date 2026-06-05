@@ -20,10 +20,13 @@ request.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (window.location.pathname.startsWith('/admin')) {
-        window.location.href = '/admin/login';
-      } else {
-        window.location.href = '/login';
+      // Only redirect if the current page requires auth
+      const path = window.location.pathname;
+      const isAuthPage = path.startsWith('/admin') || path === '/cart' || path === '/checkout'
+        || path.startsWith('/orders') || path.startsWith('/favorites')
+        || path === '/profile' || path === '/addresses' || path === '/messages';
+      if (isAuthPage) {
+        window.location.href = path.startsWith('/admin') ? '/admin/login' : '/login';
       }
     }
     return Promise.reject(error);

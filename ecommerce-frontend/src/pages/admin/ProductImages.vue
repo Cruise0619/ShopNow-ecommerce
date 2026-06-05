@@ -246,7 +246,7 @@ onMounted(() => {
   position: relative;
   background: var(--color-surface);
   border: 2px dashed var(--color-border);
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   cursor: default;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
