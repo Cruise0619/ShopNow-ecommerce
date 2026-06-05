@@ -48,13 +48,13 @@ function logout() {
 
 <style scoped>
 .admin-layout { display: flex; min-height: 100vh; }
-.sidebar { width: 260px; background: var(--gradient-sidebar); flex-shrink: 0; }
-.sidebar-logo { display: block; padding: 22px 20px; font-size: 1.25rem; font-weight: 700; background: var(--color-primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar { width: 220px; background: var(--gradient-sidebar); flex-shrink: 0; }
+.sidebar-logo { display: block; padding: 16px 16px; font-size: 1.1rem; font-weight: 700; background: var(--color-primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .sidebar :deep(.el-menu) { border-right: none; }
-.sidebar :deep(.el-menu-item) { font-size: 1rem; height: 52px; line-height: 52px; }
+.sidebar :deep(.el-menu-item) { font-size: 0.9rem; height: 44px; line-height: 44px; }
 .admin-main { flex: 1; display: flex; flex-direction: column; background: var(--gradient-page); background-attachment: fixed; }
 .admin-header { background: var(--gradient-header); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
 .admin-title { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); }
 .admin-header-right { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-.admin-content { flex: 1; padding: 24px; overflow-y: auto; }
+.admin-content { flex: 1; padding: 16px; overflow-y: auto; }
 </style>

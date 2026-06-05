@@ -114,7 +114,7 @@ function logout() {
 
 <style scoped>
 .header { background: var(--gradient-header); box-shadow: 0 2px 20px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
-.header-inner { max-width: 2000px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; position: relative; }
+.header-inner { max-width: 2200px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; position: relative; }
 
 /* ===== Logo ===== */
 .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
@@ -144,12 +144,12 @@ function logout() {
 
 /* ===== Nav Bar ===== */
 .nav-bar { background: var(--gradient-nav); box-shadow: 0 3px 14px rgba(220, 38, 38, 0.22); }
-.nav-inner { max-width: 2000px; margin: 0 auto; padding: 0 24px; }
+.nav-inner { max-width: 2200px; margin: 0 auto; padding: 0 16px; }
 .nav-inner :deep(.el-menu) { background: transparent; border: none; }
 .nav-inner :deep(.el-menu-item) { color: rgba(255,255,255,0.9) !important; border: none !important; font-size: 1rem; font-weight: 500; padding: 0 24px; height: 48px; line-height: 48px; }
 .nav-inner :deep(.el-menu-item:hover), .nav-inner :deep(.el-menu-item.is-active) { color: #fff !important; background: rgba(255,255,255,0.18) !important; border-radius: 8px; backdrop-filter: blur(4px); }
 
 /* ===== Main & Footer ===== */
-.main-content { min-height: calc(100vh - 200px); background: var(--gradient-page); background-attachment: fixed; }
-.footer { background: var(--gradient-footer); color: #94a3b8; text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+.main-content { min-height: calc(100vh - 170px); background: var(--gradient-page); background-attachment: fixed; }
+.footer { background: var(--gradient-footer); color: #94a3b8; text-align: center; padding: 14px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
 </style>

@@ -60,7 +60,7 @@
       <!-- 主体内容 -->
       <main class="home-main">
         <section class="hero-section" v-if="banners.length">
-          <el-carousel :interval="5000" arrow="always" height="320px" indicator-position="outside">
+          <el-carousel :interval="5000" arrow="always" height="240px" indicator-position="outside">
             <el-carousel-item v-for="item in banners" :key="item.id">
               <div
                 class="banner-slide"
@@ -77,7 +77,7 @@
 
         <section class="category-section">
           <h2 class="section-title">商品分类</h2>
-          <el-row :gutter="16" v-if="categories.length">
+          <el-row :gutter="12" v-if="categories.length">
             <el-col :xs="8" :sm="6" :md="4" :lg="3" v-for="cat in visibleCategories" :key="cat.id">
               <div class="category-card" @click="$router.push(`/products?category_id=${cat.id}`)">
                 <div class="category-icon">
@@ -106,7 +106,7 @@
             <h2 class="section-title flash-section-title">限时秒杀</h2>
             <router-link to="/products" class="section-more">查看更多 <el-icon><ArrowRight /></el-icon></router-link>
           </div>
-          <el-row :gutter="16">
+          <el-row :gutter="12">
             <el-col :xs="12" :sm="8" :md="6" v-for="fs in flashSaleProducts" :key="fs.id">
               <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${fs.productId}`)">
                 <div class="product-image">
@@ -138,7 +138,7 @@
             <h2 class="section-title">热门推荐</h2>
             <router-link to="/products?sort=sales" class="section-more">查看更多 <el-icon><ArrowRight /></el-icon></router-link>
           </div>
-          <el-row :gutter="16" v-if="hotProducts.length">
+          <el-row :gutter="12" v-if="hotProducts.length">
             <el-col :xs="12" :sm="8" :md="6" v-for="p in hotProducts" :key="p.id">
               <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${p.id}`)">
                 <div class="product-image">
@@ -169,7 +169,7 @@
             <h2 class="section-title">新品上架</h2>
             <router-link to="/products?sort=newest" class="section-more">查看更多 <el-icon><ArrowRight /></el-icon></router-link>
           </div>
-          <el-row :gutter="16" v-if="newProducts.length">
+          <el-row :gutter="12" v-if="newProducts.length">
             <el-col :xs="12" :sm="8" :md="6" v-for="p in newProducts" :key="p.id">
               <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${p.id}`)">
                 <div class="product-image">
@@ -200,7 +200,7 @@
             <h2 class="section-title">限时促销</h2>
             <router-link to="/products" class="section-more">查看更多 <el-icon><ArrowRight /></el-icon></router-link>
           </div>
-          <el-row :gutter="16">
+          <el-row :gutter="12">
             <el-col :xs="12" :sm="8" :md="6" v-for="p in promoProducts" :key="p.id">
               <el-card shadow="hover" class="product-card flash-product-card" @click="$router.push(`/products/${p.id}`)">
                 <div class="product-image">
@@ -581,9 +581,9 @@ onBeforeUnmount(() => {
 
 /* 三栏容器 */
 .home-container {
-  max-width: 2000px;
+  max-width: 2200px;
   margin: 0 auto;
-  padding: 6px 6px 0;
+  padding: 4px 8px 0;
   display: flex;
   gap: 8px;
   align-items: flex-start;
@@ -591,13 +591,13 @@ onBeforeUnmount(() => {
 
 /* ===== 左栏 ===== */
 .home-sidebar-left {
-  width: 240px;
+  width: 320px;
   flex-shrink: 0;
   position: sticky;
-  top: 110px;
+  top: 100px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   z-index: 10;
 }
 
@@ -610,13 +610,13 @@ onBeforeUnmount(() => {
 
 /* ===== 右栏 ===== */
 .home-sidebar-right {
-  width: 260px;
+  width: 340px;
   flex-shrink: 0;
   position: sticky;
-  top: 110px;
+  top: 100px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   z-index: 10;
 }
 
@@ -625,8 +625,8 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: 10px;
+  padding: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
   border: 1px solid rgba(226,232,240,0.8);
   transition: box-shadow 0.3s ease;
@@ -908,8 +908,8 @@ onBeforeUnmount(() => {
 
 /* ===== 横幅 ===== */
 .hero-section {
-  margin-bottom: 12px;
-  border-radius: 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
@@ -952,7 +952,7 @@ onBeforeUnmount(() => {
 }
 
 .banner-content h2 {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   margin: 0;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -961,16 +961,16 @@ onBeforeUnmount(() => {
 
 /* ===== 分类区 ===== */
 .category-section {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .section-title {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 900;
   color: var(--color-text-primary);
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   position: relative;
-  padding-left: 16px;
+  padding-left: 14px;
   letter-spacing: 0.03em;
 }
 
@@ -987,14 +987,14 @@ onBeforeUnmount(() => {
 
 .category-card {
   text-align: center;
-  padding: 12px 8px 10px;
+  padding: 10px 6px 8px;
   background: rgba(255,255,255,0.9);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.03);
   border: 1px solid rgba(226,232,240,0.7);
 }
@@ -1012,11 +1012,11 @@ onBeforeUnmount(() => {
 }
 
 .category-icon {
-  width: 44px;
-  height: 44px;
-  margin: 0 auto 8px;
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 6px;
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1073,13 +1073,13 @@ onBeforeUnmount(() => {
 }
 
 /* ===== 商品区 ===== */
-.product-section { margin-bottom: 16px; }
+.product-section { margin-bottom: 10px; }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .section-more {
@@ -1104,8 +1104,8 @@ onBeforeUnmount(() => {
 /* ===== 商品卡片 ===== */
 .product-card {
   cursor: pointer;
-  margin-bottom: 12px;
-  border-radius: 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1184,19 +1184,19 @@ onBeforeUnmount(() => {
   z-index: 2;
 }
 
-.product-info { padding: 10px 10px 10px; }
+.product-info { padding: 8px 8px 8px; }
 
 .product-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--color-text-primary);
-  margin: 0 0 6px;
-  line-height: 1.35;
+  margin: 0 0 4px;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 36px;
+  min-height: 32px;
 }
 
 .product-price-row {
@@ -1207,7 +1207,7 @@ onBeforeUnmount(() => {
 }
 
 .product-price {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 800;
   color: #ef4444;
   letter-spacing: -0.03em;
@@ -1332,7 +1332,7 @@ onBeforeUnmount(() => {
 
 .flash-price {
   color: #ef4444 !important;
-  font-size: 20px !important;
+  font-size: 17px !important;
   font-weight: 800 !important;
 }
 
@@ -1439,13 +1439,13 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: 16px 12px;
-  margin-bottom: 18px;
+  border-radius: 12px;
+  padding: 12px 8px;
+  margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
   border: 1px solid rgba(226,232,240,0.7);
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
 .service-item {
@@ -1520,16 +1520,16 @@ onBeforeUnmount(() => {
 }
 
 /* ===== 响应式 ===== */
-@media (max-width: 1500px) {
-  .home-sidebar-left { width: 210px; }
-  .home-sidebar-right { width: 230px; }
-  .home-container { gap: 6px; padding: 6px 6px 0; }
+@media (max-width: 1600px) {
+  .home-sidebar-left { width: 260px; }
+  .home-sidebar-right { width: 280px; }
+  .home-container { gap: 8px; padding: 4px 8px 0; }
 }
 
 @media (max-width: 1200px) {
   .home-sidebar-left { display: none; }
   .home-sidebar-right { display: none; }
-  .home-container { padding: 8px 8px 0; }
+  .home-container { padding: 6px 8px 0; }
 }
 
 @media (max-width: 768px) {

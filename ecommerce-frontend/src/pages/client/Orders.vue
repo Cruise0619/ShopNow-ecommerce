@@ -423,9 +423,9 @@ function openLogistics(order) {
 
 <style scoped>
 .orders-page {
-  max-width: 1800px;
+  max-width: 2200px;
   margin: 0 auto;
-  padding: 14px 12px;
+  padding: 8px 8px;
   min-height: calc(100vh - 130px);
 }
 

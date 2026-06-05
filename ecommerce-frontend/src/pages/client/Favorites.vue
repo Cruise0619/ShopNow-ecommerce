@@ -142,9 +142,9 @@ async function handleRemove(fav) {
 
 <style scoped>
 .favorites-page {
-  max-width: 1800px;
+  max-width: 2200px;
   margin: 0 auto;
-  padding: 14px 14px;
+  padding: 8px 8px;
   min-height: 60vh;
 }
 

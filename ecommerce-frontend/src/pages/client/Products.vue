@@ -1,6 +1,6 @@
 <template>
   <div class="products-page">
-    <el-row :gutter="20">
+    <el-row :gutter="14">
       <!-- 左侧分类树 -->
       <el-col :xs="0" :md="5">
         <div class="category-sidebar">
@@ -79,14 +79,13 @@
 
         <!-- 商品列表 -->
         <div v-loading="loading" class="product-grid-wrapper">
-          <el-row :gutter="16" v-if="products.length">
+          <el-row :gutter="12" v-if="products.length">
             <el-col
               v-for="p in products"
               :key="p.id"
               :xs="12"
               :sm="8"
               :md="6"
-              :lg="6"
             >
               <el-card shadow="hover" class="product-card" @click="$router.push(`/products/${p.id}`)">
                 <div class="product-image">
@@ -286,9 +285,9 @@ watch(
 
 <style scoped>
 .products-page {
-  max-width: 1800px;
+  max-width: 2200px;
   margin: 0 auto;
-  padding: 14px 12px;
+  padding: 8px 8px;
   min-height: calc(100vh - 130px);
 }
 
@@ -296,10 +295,10 @@ watch(
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: 14px 0;
+  border-radius: 12px;
+  padding: 10px 0;
   position: sticky;
-  top: 80px;
+  top: 70px;
   max-height: calc(100vh - 130px);
   display: flex;
   flex-direction: column;
@@ -309,12 +308,12 @@ watch(
 }
 
 .sidebar-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
-  padding: 0 16px 12px;
+  padding: 0 14px 10px;
   border-bottom: 1px solid rgba(226,232,240,0.6);
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   letter-spacing: 0.02em;
 }
 
@@ -332,12 +331,12 @@ watch(
 .category-menu::-webkit-scrollbar { display: none; }
 
 .category-menu :deep(.el-menu-item) {
-  height: 44px;
-  line-height: 44px;
-  font-size: 15px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
   color: var(--color-text-body);
   border-radius: 8px;
-  margin: 2px 8px;
+  margin: 1px 6px;
   transition: all 0.2s ease;
 }
 
@@ -359,11 +358,11 @@ watch(
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 14px 18px;
-  border-radius: 14px;
-  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
   border: 1px solid rgba(226,232,240,0.7);
 }
@@ -411,8 +410,8 @@ watch(
 
 .product-card {
   cursor: pointer;
-  margin-bottom: 14px;
-  border-radius: 14px;
+  margin-bottom: 10px;
+  border-radius: 12px;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -502,20 +501,20 @@ watch(
 }
 
 .product-info {
-  padding: 10px 12px 12px;
+  padding: 8px 10px 10px;
 }
 
 .product-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--color-text-primary);
-  margin: 0 0 6px;
-  line-height: 1.35;
+  margin: 0 0 4px;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 38px;
+  min-height: 34px;
 }
 
 .product-price-row {
@@ -526,7 +525,7 @@ watch(
 }
 
 .product-price {
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 800;
   color: #ef4444;
   letter-spacing: -0.02em;
@@ -549,8 +548,8 @@ watch(
 .pagination-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 24px;
-  padding: 14px 0;
+  margin-top: 16px;
+  padding: 10px 0;
 }
 
 @media (max-width: 992px) {
