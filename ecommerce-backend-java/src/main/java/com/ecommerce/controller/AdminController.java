@@ -266,6 +266,42 @@ public class AdminController {
         return ApiResponse.ok("更新成功", data);
     }
 
+    @PostMapping("/products/{id}/upload-images")
+    public ApiResponse<Product> productUploadImages(
+            @PathVariable Integer id,
+            @RequestParam("images") List<MultipartFile> images) throws IOException {
+
+        Product product = productMapper.selectById(id);
+        if (product == null) {
+            return ApiResponse.error(400, "商品不存在");
+        }
+        if (images == null || images.isEmpty()) {
+            return ApiResponse.error(400, "请至少上传一张图片");
+        }
+
+        List<String> imageList = product.getImages();
+        if (imageList == null) {
+            imageList = new ArrayList<>();
+        }
+
+        for (MultipartFile file : images) {
+            if (file.isEmpty()) continue;
+            String ext = getExt(file.getOriginalFilename());
+            if (!ext.matches("\\.(jpg|jpeg|png|gif|webp)")) {
+                return ApiResponse.error(400, "仅支持 JPG/PNG/GIF/WebP 格式");
+            }
+            String filename = System.currentTimeMillis() + "-" + new Random().nextInt(10000) + ext;
+            file.transferTo(new File(uploadPath, filename));
+            imageList.add("/uploads/" + filename);
+        }
+
+        product.setImages(imageList);
+        product.setUpdatedAt(new Date());
+        productMapper.updateById(product);
+
+        return ApiResponse.ok("上传成功", product);
+    }
+
     @DeleteMapping("/products/{id}")
     public ApiResponse<?> productDelete(@PathVariable Integer id) {
         productService.delete(id);

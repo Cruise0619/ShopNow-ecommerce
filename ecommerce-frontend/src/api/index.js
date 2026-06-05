@@ -46,6 +46,7 @@ export const adminAPI = {
   productCreate: d => request.post('/admin/products', d),
   productUpdate: (id, d) => request.post(`/admin/products/${id}`, d),
   productDelete: id => request.delete(`/admin/products/${id}`),
+  productUploadImages: (id, fd) => request.post(`/admin/products/${id}/upload-images`, fd),
   orders: p => request.get('/admin/orders', { params: p }),
   orderDetail: id => request.get(`/admin/orders/${id}`),
   orderShip: (id, d) => request.put(`/admin/orders/${id}/ship`, d),

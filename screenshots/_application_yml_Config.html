@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; padding: 20px; }
+.header { background: #2d2d2d; padding: 8px 16px; border-radius: 6px 6px 0 0; margin-bottom: 0; display: flex; gap: 8px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+.filename { color: #888; margin-left: 16px; font-size: 12px; }
+.code-block { background: #1e1e1e; padding: 16px 20px; border-radius: 0 0 6px 6px; border: 1px solid #333; border-top: none; overflow-x: auto; white-space: pre; }
+.keyword { color: #569cd6; } .string { color: #ce9178; } .comment { color: #6a9955; } .annotation { color: #dcdcaa; }
+.type { color: #4ec9b0; } .number { color: #b5cea8; } .method { color: #dcdcaa; }
+h2 { color: #fff; font-size: 15px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #444; }
+</style></head>
+<body>
+<h2>application.yml Config</h2>
+<div class="header">
+<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+<span class="filename">application.yml</span>
+</div>
+<div class="code-block"><code><span style="color:#569cd6">server</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">  port</span>:<span style="color:#ce9178"> 8080</span>
+
+<span style="color:#569cd6">spring</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">  datasource</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    url</span>:<span style="color:#ce9178"> jdbc:mysql://localhost:3306/ecommerce?useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;characterEncoding=UTF-8&amp;allowPublicKeyRetrieval=true</span>
+<span style="color:#569cd6">    username</span>:<span style="color:#ce9178"> root</span>
+<span style="color:#569cd6">    password</span>:<span style="color:#ce9178"> ${DB_PASSWORD:}</span>
+<span style="color:#569cd6">    driver-class-name</span>:<span style="color:#ce9178"> com.mysql.cj.jdbc.Driver</span>
+<span style="color:#569cd6">  sql</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    init</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">      mode</span>:<span style="color:#ce9178"> never</span>
+<span style="color:#569cd6">      schema-locations</span>:<span style="color:#ce9178"> classpath:schema.sql</span>
+<span style="color:#569cd6">  jackson</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    date-format</span>:<span style="color:#ce9178"> yyyy-MM-dd HH:mm:ss</span>
+<span style="color:#569cd6">    time-zone</span>:<span style="color:#ce9178"> Asia/Shanghai</span>
+<span style="color:#569cd6">  servlet</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    multipart</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">      max-file-size</span>:<span style="color:#ce9178"> 5MB</span>
+<span style="color:#569cd6">      max-request-size</span>:<span style="color:#ce9178"> 20MB</span>
+<span style="color:#569cd6">  mvc</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    view</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">      prefix</span>:<span style="color:#ce9178"> /WEB-INF/jsp/</span>
+<span style="color:#569cd6">      suffix</span>:<span style="color:#ce9178"> .jsp</span>
+
+<span style="color:#569cd6">mybatis-plus</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">  configuration</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    map-underscore-to-camel-case</span>:<span style="color:#ce9178"> true</span>
+    # Use SLF4J for production logging; switch to StdOutImpl only for dev debugging
+<span style="color:#569cd6">    log-impl</span>:<span style="color:#ce9178"> org.apache.ibatis.logging.slf4j.Slf4jImpl</span>
+<span style="color:#569cd6">  global-config</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    db-config</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">      id-type</span>:<span style="color:#ce9178"> auto</span>
+
+<span style="color:#569cd6">app</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">  jwt</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    secret</span>:<span style="color:#ce9178"> ${JWT_SECRET:}</span>
+<span style="color:#569cd6">    expires-in</span>:<span style="color:#ce9178"> 604800000</span>
+<span style="color:#569cd6">  upload</span>:<span style="color:#ce9178"></span>
+<span style="color:#569cd6">    path</span>:<span style="color:#ce9178"> ${user.dir}/uploads</span>
+</code></div>
+</body></html>

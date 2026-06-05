@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; padding: 20px; }
+.header { background: #2d2d2d; padding: 8px 16px; border-radius: 6px 6px 0 0; margin-bottom: 0; display: flex; gap: 8px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+.filename { color: #888; margin-left: 16px; font-size: 12px; }
+.code-block { background: #1e1e1e; padding: 16px 20px; border-radius: 0 0 6px 6px; border: 1px solid #333; border-top: none; overflow-x: auto; white-space: pre; }
+.keyword { color: #569cd6; } .string { color: #ce9178; } .comment { color: #6a9955; } .annotation { color: #dcdcaa; }
+.type { color: #4ec9b0; } .number { color: #b5cea8; } .method { color: #dcdcaa; }
+h2 { color: #fff; font-size: 15px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #444; }
+</style></head>
+<body>
+<h2>JwtAuthFilter.java Filter</h2>
+<div class="header">
+<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+<span class="filename">JwtAuthFilter.java</span>
+</div>
+<div class="code-block"><code><span <span class="keyword">class</span>="keyword">package</span> com.ecommerce.filter;
+
+<span <span class="keyword">class</span>="keyword">import</span> com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.entity.User;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.mapper.UserMapper;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.util.JwtUtil;
+<span <span class="keyword">class</span>="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.Filter;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.FilterChain;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.ServletException;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.ServletRequest;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.ServletResponse;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.annotation.WebFilter;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.http.HttpServletResponse;
+<span <span class="keyword">class</span>="keyword">import</span> java.io.IOException;
+<span <span class="keyword">class</span>="keyword">import</span> java.util.Arrays;
+<span <span class="keyword">class</span>="keyword">import</span> java.util.LinkedHashMap;
+<span <span class="keyword">class</span>="keyword">import</span> java.util.List;
+<span <span class="keyword">class</span>="keyword">import</span> java.util.Map;
+
+<span <span class="keyword">class</span>="annotation">@WebFilter</span>(urlPatterns = <span <span class="keyword">class</span>="string">"/api/*"</span>)
+<span <span class="keyword">class</span>="keyword">public</span> <span class="keyword">class</span> JwtAuthFilter <span <span class="keyword">class</span>="keyword">implements</span> Filter {
+
+    <span <span class="keyword">class</span>="keyword">private</span> <span <span class="keyword">class</span>="keyword">static</span> <span class="keyword">final</span> List<String> WHITELIST = Arrays.asList(
+            <span <span class="keyword">class</span>="string">"/api/auth/"</span>,
+            <span <span class="keyword">class</span>="string">"/api/<span <span class="keyword">class</span>="keyword">public</span>/"</span>,
+            <span <span class="keyword">class</span>="string">"/api/products"</span>,
+            <span <span class="keyword">class</span>="string">"/api/reviews"</span>,
+            <span <span class="keyword">class</span>="string">"/api/banners"</span>,
+            <span <span class="keyword">class</span>="string">"/api/announcements"</span>,
+            <span <span class="keyword">class</span>="string">"/api/coupons"</span>,
+            <span <span class="keyword">class</span>="string">"/api/flashsales"</span>,
+            <span <span class="keyword">class</span>="string">"/api/admin/categories"</span>
+    );
+
+    <span <span class="keyword">class</span>="annotation">@Autowired</span>
+    <span <span class="keyword">class</span>="keyword">private</span> JwtUtil jwtUtil;
+
+    <span <span class="keyword">class</span>="annotation">@Autowired</span>
+    <span <span class="keyword">class</span>="keyword">private</span> UserMapper userMapper;
+
+    <span <span class="keyword">class</span>="annotation">@Override</span>
+    <span <span class="keyword">class</span>="keyword">public</span> <span class="keyword">void</span> doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            <span <span class="keyword">class</span>="keyword">throws</span> IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
+        String path = req.getRequestURI();
+        String method = req.getMethod();
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Allow uploads and servlet/jsp paths</span>
+        <span class="keyword">if</span> (path.startsWith(<span <span class="keyword">class</span>="string">"/uploads/"</span>) || path.startsWith(<span <span class="keyword">class</span>="string">"/servlet/"</span>) || path.startsWith(<span <span class="keyword">class</span>="string">"/jsp/"</span>)) {
+            chain.doFilter(request, response);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Allow OPTIONS preflight</span>
+        <span class="keyword">if</span> (<span <span class="keyword">class</span>="string">"OPTIONS"</span>.equalsIgnoreCase(method)) {
+            chain.doFilter(request, response);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Check whitelist</span>
+        boolean isWhitelisted = false;
+        <span class="keyword">for</span> (String wl : WHITELIST) {
+            <span class="keyword">if</span> (path.startsWith(wl)) {
+                <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// GET <span class="keyword">for</span> <span <span class="keyword">class</span>="keyword">public</span> resources is always allowed</span>
+                <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// POST <span class="keyword">for</span> auth endpoints is allowed</span>
+                <span class="keyword">if</span> (<span <span class="keyword">class</span>="string">"GET"</span>.equalsIgnoreCase(method) || path.startsWith(<span <span class="keyword">class</span>="string">"/api/auth/"</span>) || path.startsWith(<span <span class="keyword">class</span>="string">"/api/<span <span class="keyword">class</span>="keyword">public</span>/"</span>)) {
+                    isWhitelisted = true;
+                    <span class="keyword">break</span>;
+                }
+            }
+        }
+
+        <span class="keyword">if</span> (isWhitelisted) {
+            chain.doFilter(request, response);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Authenticate</span>
+        String authHeader = req.getHeader(<span <span class="keyword">class</span>="string">"Authorization"</span>);
+        <span class="keyword">if</span> (authHeader == null || !authHeader.startsWith(<span <span class="keyword">class</span>="string">"Bearer "</span>)) {
+            sendError(resp, 401, <span <span class="keyword">class</span>="string">"请先登录"</span>);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+
+        String token = authHeader.substring(7);
+        <span class="keyword">if</span> (!jwtUtil.validateToken(token)) {
+            sendError(resp, 401, <span <span class="keyword">class</span>="string">"登录已过期，请重新登录"</span>);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+
+        Integer userId = jwtUtil.getUserIdFromToken(token);
+        User user = userMapper.selectById(userId);
+        <span class="keyword">if</span> (user == null) {
+            sendError(resp, 401, <span <span class="keyword">class</span>="string">"用户不存在"</span>);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+        <span class="keyword">if</span> (<span <span class="keyword">class</span>="string">"disabled"</span>.equals(user.getStatus())) {
+            sendError(resp, 401, <span <span class="keyword">class</span>="string">"账号已被禁用"</span>);
+            <span <span class="keyword">class</span>="keyword">return</span>;
+        }
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Admin check <span class="keyword">for</span> /api/admin/*</span>
+        <span class="keyword">if</span> (path.startsWith(<span <span class="keyword">class</span>="string">"/api/admin/"</span>)) {
+            <span class="keyword">if</span> (!<span <span class="keyword">class</span>="string">"admin"</span>.equals(user.getRole())) {
+                sendError(resp, 403, <span <span class="keyword">class</span>="string">"无管理员权限"</span>);
+                <span <span class="keyword">class</span>="keyword">return</span>;
+            }
+        }
+
+        req.setAttribute(<span <span class="keyword">class</span>="string">"userId"</span>, userId);
+        req.setAttribute(<span <span class="keyword">class</span>="string">"user"</span>, user);
+        chain.doFilter(request, response);
+    }
+
+    <span <span class="keyword">class</span>="keyword">private</span> <span <span class="keyword">class</span>="keyword">static</span> <span class="keyword">final</span> ObjectMapper objectMapper = <span class="keyword">new</span> ObjectMapper();
+
+    <span <span class="keyword">class</span>="keyword">private</span> <span class="keyword">void</span> sendError(HttpServletResponse resp, int code, String message) <span <span class="keyword">class</span>="keyword">throws</span> IOException {
+        resp.setStatus(code);
+        resp.setContentType(<span <span class="keyword">class</span>="string">"application/json;charset=UTF-8"</span>);
+        Map<String, Object> body = <span class="keyword">new</span> LinkedHashMap<>();
+        body.put(<span <span class="keyword">class</span>="string">"code"</span>, code);
+        body.put(<span <span class="keyword">class</span>="string">"message"</span>, message);
+        body.put(<span <span class="keyword">class</span>="string">"data"</span>, null);
+        resp.getWriter().write(objectMapper.writeValueAsString(body));
+    }
+}
+</code></div>
+</body></html>

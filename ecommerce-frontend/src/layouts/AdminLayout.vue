@@ -6,6 +6,7 @@
         <el-menu-item index="/admin/dashboard"><el-icon><DataAnalysis /></el-icon> 数据看板</el-menu-item>
         <el-menu-item index="/admin/users"><el-icon><User /></el-icon> 用户管理</el-menu-item>
         <el-menu-item index="/admin/products"><el-icon><Goods /></el-icon> 商品管理</el-menu-item>
+        <el-menu-item index="/admin/product-images"><el-icon><Picture /></el-icon> 商品图片上传</el-menu-item>
         <el-menu-item index="/admin/categories"><el-icon><Menu /></el-icon> 分类管理</el-menu-item>
         <el-menu-item index="/admin/orders"><el-icon><Document /></el-icon> 订单管理</el-menu-item>
         <el-menu-item index="/admin/reviews"><el-icon><ChatDotRound /></el-icon> 评价管理</el-menu-item>

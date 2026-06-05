@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; padding: 20px; }
+.header { background: #2d2d2d; padding: 8px 16px; border-radius: 6px 6px 0 0; margin-bottom: 0; display: flex; gap: 8px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+.filename { color: #888; margin-left: 16px; font-size: 12px; }
+.code-block { background: #1e1e1e; padding: 16px 20px; border-radius: 0 0 6px 6px; border: 1px solid #333; border-top: none; overflow-x: auto; white-space: pre; }
+.keyword { color: #569cd6; } .string { color: #ce9178; } .comment { color: #6a9955; } .annotation { color: #dcdcaa; }
+.type { color: #4ec9b0; } .number { color: #b5cea8; } .method { color: #dcdcaa; }
+h2 { color: #fff; font-size: 15px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #444; }
+</style></head>
+<body>
+<h2>AdminController.java Controller</h2>
+<div class="header">
+<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+<span class="filename">AdminController.java</span>
+</div>
+<div class="code-block"><code><span <span class="keyword">class</span>="keyword">package</span> com.ecommerce.controller;
+
+<span <span class="keyword">class</span>="keyword">import</span> com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+<span <span class="keyword">class</span>="keyword">import</span> com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+<span <span class="keyword">class</span>="keyword">import</span> com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.dto.ApiResponse;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.entity.*;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.exception.BusinessException;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.mapper.*;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.service.*;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.beans.factory.annotation.Value;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.http.HttpHeaders;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.http.MediaType;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.http.ResponseEntity;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.jdbc.core.JdbcTemplate;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.transaction.annotation.Transactional;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.web.bind.annotation.*;
+<span <span class="keyword">class</span>="keyword">import</span> org.springframework.web.multipart.MultipartFile;
+
+<span <span class="keyword">class</span>="keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span <span class="keyword">class</span>="keyword">import</span> java.io.File;
+<span <span class="keyword">class</span>="keyword">import</span> java.io.IOException;
+<span <span class="keyword">class</span>="keyword">import</span> java.math.BigDecimal;
+<span <span class="keyword">class</span>="keyword">import</span> java.util.*;
+
+<span <span class="keyword">class</span>="annotation">@RestController</span>
+<span <span class="keyword">class</span>="annotation">@RequestMapping</span>(<span <span class="keyword">class</span>="string">"/api/admin"</span>)
+<span <span class="keyword">class</span>="keyword">public</span> <span class="keyword">class</span> AdminController {
+
+    <span <span class="keyword">class</span>="annotation">@Value</span>(<span <span class="keyword">class</span>="string">"${app.upload.path}"</span>)
+    <span <span class="keyword">class</span>="keyword">private</span> String uploadPath;
+
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> AdminService adminService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> UserService userService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> ProductService productService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> OrderService orderService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> ReviewService reviewService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> BannerService bannerService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> AnnouncementService announcementService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> CouponService couponService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> FeedbackService feedbackService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> MessageService messageService;
+
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> UserMapper userMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> CategoryMapper categoryMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> ProductMapper productMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> OrderMapper orderMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> OrderItemMapper orderItemMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> ReviewMapper reviewMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> BannerMapper bannerMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> AnnouncementMapper announcementMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> CouponMapper couponMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> FeedbackMapper feedbackMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> CartItemMapper cartItemMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> FavoriteMapper favoriteMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> AddressMapper addressMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> MessageMapper messageMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> FlashSaleMapper flashSaleMapper;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> FlashSaleService flashSaleService;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> BCryptPasswordEncoder passwordEncoder;
+    <span <span class="keyword">class</span>="annotation">@Autowired</span> <span <span class="keyword">class</span>="keyword">private</span> JdbcTemplate jdbcTemplate;
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Dashboard =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/dashboard"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> dashboard() {
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(adminService.dashboard());
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Users =====</span>
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/users/backfill-uids"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> backfillUids() {
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Ensure the uid column exists in the database</span>
+        <span class="keyword">try</span> {
+            jdbcTemplate.execute(<span <span class="keyword">class</span>="string">"ALTER TABLE users ADD COLUMN uid VARCHAR(3) UNIQUE"</span>);
+        } <span class="keyword">catch</span> (Exception e) {
+            <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Column already exists — ignore</span>
+        }
+        int count = userService.backfillUids();
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"updated"</span>, count);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"UID补全完成"</span>, data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/users"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> userList(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"1"</span>) int page,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"10"</span>) int page_size,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) String keyword) {
+        Page<User> result = userService.page(page, page_size, keyword);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"list"</span>, result.getRecords());
+        data.put(<span <span class="keyword">class</span>="string">"total"</span>, result.getTotal());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/users"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<User> userCreate(<span <span class="keyword">class</span>="annotation">@RequestBody</span> Map<String, String> body) {
+        User user = <span class="keyword">new</span> User();
+        user.setUsername(body.get(<span <span class="keyword">class</span>="string">"username"</span>));
+        user.setPasswordHash(body.get(<span <span class="keyword">class</span>="string">"password"</span>));
+        user.setEmail(body.getOrDefault(<span <span class="keyword">class</span>="string">"email"</span>, <span <span class="keyword">class</span>="string">""</span>));
+        user.setPhone(body.getOrDefault(<span <span class="keyword">class</span>="string">"phone"</span>, <span <span class="keyword">class</span>="string">""</span>));
+        user = userService.create(user);
+        user.setPasswordHash(null);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"创建成功"</span>, user);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/users/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<User> userDetail(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        User user = userService.findById(id);
+        <span class="keyword">if</span> (user != null) user.setPasswordHash(null);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(user);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/users/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> userUpdate(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> User data) {
+        data.setId(id);
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Never accept passwordHash from request body</span>
+        data.setPasswordHash(null);
+        userService.update(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/users/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> userDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        User user = userService.findById(id);
+        <span class="keyword">if</span> (user == null) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"用户不存在"</span>);
+        }
+        <span class="keyword">if</span> (<span <span class="keyword">class</span>="string">"admin"</span>.equals(user.getRole())) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"不能删除管理员账号"</span>);
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Cascade cleanup: delete all dependent records</span>
+        addressMapper.delete(<span class="keyword">new</span> QueryWrapper<Address>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        cartItemMapper.delete(<span class="keyword">new</span> QueryWrapper<CartItem>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        favoriteMapper.delete(<span class="keyword">new</span> QueryWrapper<Favorite>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        feedbackMapper.delete(<span class="keyword">new</span> QueryWrapper<Feedback>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        messageMapper.delete(<span class="keyword">new</span> QueryWrapper<Message>().eq(<span <span class="keyword">class</span>="string">"from_user_id"</span>, id)
+                .or().eq(<span <span class="keyword">class</span>="string">"to_user_id"</span>, id));
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Handle orders: delete order items then orders</span>
+        List<Order> userOrders = orderMapper.selectList(
+                <span class="keyword">new</span> QueryWrapper<Order>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        <span class="keyword">for</span> (Order o : userOrders) {
+            orderItemMapper.delete(<span class="keyword">new</span> QueryWrapper<OrderItem>().eq(<span <span class="keyword">class</span>="string">"order_id"</span>, o.getId()));
+        }
+        orderMapper.delete(<span class="keyword">new</span> QueryWrapper<Order>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Delete reviews</span>
+        reviewMapper.delete(<span class="keyword">new</span> QueryWrapper<Review>().eq(<span <span class="keyword">class</span>="string">"user_id"</span>, id));
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Finally delete the user</span>
+        userMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/users/{id}/status"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> userStatus(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Map<String, String> body) {
+        User user = userService.findById(id);
+        <span class="keyword">if</span> (user != null) {
+            user.setStatus(body.get(<span <span class="keyword">class</span>="string">"status"</span>));
+            userService.update(user);
+        }
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Categories =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/categories"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<List<Category>> categoryList() {
+        List<Category> all = categoryMapper.selectList(
+                <span class="keyword">new</span> QueryWrapper<Category>().orderByDesc(<span <span class="keyword">class</span>="string">"id"</span>));
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Build tree</span>
+        List<Category> roots = <span class="keyword">new</span> ArrayList<>();
+        Map<Integer, List<Category>> childrenMap = <span class="keyword">new</span> HashMap<>();
+        <span class="keyword">for</span> (Category c : all) {
+            <span class="keyword">if</span> (c.getParentId() == null || c.getParentId() == 0) {
+                roots.add(c);
+            } <span class="keyword">else</span> {
+                childrenMap.computeIfAbsent(c.getParentId(), k -> <span class="keyword">new</span> ArrayList<>()).add(c);
+            }
+        }
+        <span class="keyword">for</span> (Category c : all) {
+            c.setChildren(childrenMap.get(c.getId()));
+        }
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(roots);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/categories"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Category> categoryCreate(<span <span class="keyword">class</span>="annotation">@RequestBody</span> Category category) {
+        categoryMapper.insert(category);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(category);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/categories/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> categoryUpdate(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Category data) {
+        data.setId(id);
+        categoryMapper.updateById(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/categories/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> categoryDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Category category = categoryMapper.selectById(id);
+        <span class="keyword">if</span> (category == null) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"分类不存在"</span>);
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Check <span class="keyword">for</span> child categories</span>
+        Long childCount = categoryMapper.selectCount(
+                <span class="keyword">new</span> QueryWrapper<Category>().eq(<span <span class="keyword">class</span>="string">"parent_id"</span>, id));
+        <span class="keyword">if</span> (childCount > 0) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"该分类下有子分类，请先删除子分类"</span>);
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Check <span class="keyword">for</span> products in <span class="keyword">this</span> category</span>
+        Long productCount = productMapper.selectCount(
+                <span class="keyword">new</span> QueryWrapper<Product>().eq(<span <span class="keyword">class</span>="string">"category_id"</span>, id));
+        <span class="keyword">if</span> (productCount > 0) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"该分类下有 "</span> + productCount + <span <span class="keyword">class</span>="string">" 件商品，请先移除商品"</span>);
+        }
+        categoryMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Products =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/products"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> productList(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"1"</span>) int page,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"10"</span>) int page_size,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) String keyword,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) Integer category_id,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) String status) {
+        Page<Product> result = productService.adminList(page, page_size, keyword, category_id, status);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"list"</span>, result.getRecords());
+        data.put(<span <span class="keyword">class</span>="string">"total"</span>, result.getTotal());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/products"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> productCreate(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span> Map<String, String> params,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(value = <span <span class="keyword">class</span>="string">"images"</span>, required = false) List<MultipartFile> images) <span <span class="keyword">class</span>="keyword">throws</span> IOException {
+        Product product = buildProduct(params, images);
+        validateProduct(product);
+        productMapper.insert(product);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"images"</span>, product.getImages());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"创建成功"</span>, data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/products/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> productUpdate(
+            <span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span> Map<String, String> params,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(value = <span <span class="keyword">class</span>="string">"images"</span>, required = false) List<MultipartFile> images) <span <span class="keyword">class</span>="keyword">throws</span> IOException {
+        Product existing = productMapper.selectById(id);
+        <span class="keyword">if</span> (existing == null) <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"商品不存在"</span>);
+        Product incoming = buildProduct(params, images);
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Preserve fields that should not be overwritten by updates</span>
+        incoming.setId(id);
+        incoming.setSales(existing.getSales());
+        incoming.setCreatedAt(existing.getCreatedAt());
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// If no <span class="keyword">new</span> images and no keep_images specified, keep existing images</span>
+        <span class="keyword">if</span> (!params.containsKey(<span <span class="keyword">class</span>="string">"keep_images"</span>) && (images == null || images.isEmpty())) {
+            incoming.setImages(existing.getImages());
+        }
+        productMapper.updateById(incoming);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"images"</span>, incoming.getImages());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"更新成功"</span>, data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/products/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> productDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        productService.delete(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/products/template"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ResponseEntity<byte[]> productTemplate() <span <span class="keyword">class</span>="keyword">throws</span> Exception {
+        byte[] data = adminService.exportProductTemplate();
+        <span <span class="keyword">class</span>="keyword">return</span> ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, <span <span class="keyword">class</span>="string">"attachment; filename=product_template.xlsx"</span>)
+                .contentType(MediaType.parseMediaType(<span <span class="keyword">class</span>="string">"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"</span>))
+                .body(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/products/<span <span class="keyword">class</span>="keyword">import</span>"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> productImport(<span <span class="keyword">class</span>="annotation">@RequestParam</span>(<span <span class="keyword">class</span>="string">"file"</span>) MultipartFile file) <span <span class="keyword">class</span>="keyword">throws</span> Exception {
+        Map<String, Object> result = adminService.importProducts(file);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"导入完成"</span>, result);
+    }
+
+    <span <span class="keyword">class</span>="keyword">private</span> Product buildProduct(Map<String, String> params, List<MultipartFile> files) <span <span class="keyword">class</span>="keyword">throws</span> IOException {
+        Product p = <span class="keyword">new</span> Product();
+        p.setName(params.get(<span <span class="keyword">class</span>="string">"name"</span>));
+        p.setDescription(params.getOrDefault(<span <span class="keyword">class</span>="string">"description"</span>, <span <span class="keyword">class</span>="string">""</span>));
+        p.setDetail(params.getOrDefault(<span <span class="keyword">class</span>="string">"detail"</span>, <span <span class="keyword">class</span>="string">""</span>));
+        <span class="keyword">try</span> { p.setCategoryId(params.containsKey(<span <span class="keyword">class</span>="string">"category_id"</span>) ? Integer.parseInt(params.get(<span <span class="keyword">class</span>="string">"category_id"</span>)) : null); }
+        <span class="keyword">catch</span> (NumberFormatException e) { p.setCategoryId(null); }
+        p.setPrice(<span class="keyword">new</span> BigDecimal(params.getOrDefault(<span <span class="keyword">class</span>="string">"price"</span>, <span <span class="keyword">class</span>="string">"0"</span>)));
+        <span class="keyword">if</span> (params.containsKey(<span <span class="keyword">class</span>="string">"original_price"</span>) && !params.get(<span <span class="keyword">class</span>="string">"original_price"</span>).isEmpty()) {
+            <span class="keyword">try</span> { p.setOriginalPrice(<span class="keyword">new</span> BigDecimal(params.get(<span <span class="keyword">class</span>="string">"original_price"</span>))); }
+            <span class="keyword">catch</span> (NumberFormatException e) { /* ignore */ }
+        }
+        <span class="keyword">try</span> { p.setStock(Integer.parseInt(params.getOrDefault(<span <span class="keyword">class</span>="string">"stock"</span>, <span <span class="keyword">class</span>="string">"0"</span>))); }
+        <span class="keyword">catch</span> (NumberFormatException e) { p.setStock(0); }
+        p.setStatus(params.getOrDefault(<span <span class="keyword">class</span>="string">"status"</span>, <span <span class="keyword">class</span>="string">"on"</span>));
+        p.setIsNew(<span <span class="keyword">class</span>="string">"1"</span>.equals(params.get(<span <span class="keyword">class</span>="string">"is_new"</span>)) || <span <span class="keyword">class</span>="string">"true"</span>.equals(params.get(<span <span class="keyword">class</span>="string">"is_new"</span>)));
+        p.setIsHot(<span <span class="keyword">class</span>="string">"1"</span>.equals(params.get(<span <span class="keyword">class</span>="string">"is_hot"</span>)) || <span <span class="keyword">class</span>="string">"true"</span>.equals(params.get(<span <span class="keyword">class</span>="string">"is_hot"</span>)));
+        p.setIsPromotion(<span <span class="keyword">class</span>="string">"1"</span>.equals(params.get(<span <span class="keyword">class</span>="string">"is_promotion"</span>)) || <span <span class="keyword">class</span>="string">"true"</span>.equals(params.get(<span <span class="keyword">class</span>="string">"is_promotion"</span>)));
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Handle specs JSON</span>
+        <span class="keyword">if</span> (params.containsKey(<span <span class="keyword">class</span>="string">"specs"</span>) && !params.get(<span <span class="keyword">class</span>="string">"specs"</span>).isEmpty()) {
+            <span class="keyword">try</span> {
+                p.setSpecs(<span class="keyword">new</span> com.fasterxml.jackson.databind.ObjectMapper().readValue(
+                        params.get(<span <span class="keyword">class</span>="string">"specs"</span>), <span class="keyword">new</span> com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}));
+            } <span class="keyword">catch</span> (Exception ignored) {}
+        }
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Handle tags JSON</span>
+        <span class="keyword">if</span> (params.containsKey(<span <span class="keyword">class</span>="string">"tags"</span>) && !params.get(<span <span class="keyword">class</span>="string">"tags"</span>).isEmpty()) {
+            <span class="keyword">try</span> {
+                p.setTags(<span class="keyword">new</span> com.fasterxml.jackson.databind.ObjectMapper().readValue(
+                        params.get(<span <span class="keyword">class</span>="string">"tags"</span>), <span class="keyword">new</span> com.fasterxml.jackson.core.type.TypeReference<List<String>>() {}));
+            } <span class="keyword">catch</span> (Exception ignored) {}
+        } <span class="keyword">else</span> {
+            p.setTags(<span class="keyword">new</span> ArrayList<>());
+        }
+
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Images: keep existing + <span class="keyword">new</span> uploads</span>
+        List<String> imageList = <span class="keyword">new</span> ArrayList<>();
+        <span class="keyword">if</span> (params.containsKey(<span <span class="keyword">class</span>="string">"keep_images"</span>)) {
+            <span class="keyword">try</span> {
+                List<String> kept = <span class="keyword">new</span> com.fasterxml.jackson.databind.ObjectMapper().readValue(
+                        params.get(<span <span class="keyword">class</span>="string">"keep_images"</span>), <span class="keyword">new</span> com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+                imageList.addAll(kept);
+            } <span class="keyword">catch</span> (Exception ignored) {}
+        }
+        <span class="keyword">if</span> (files != null) {
+            <span class="keyword">for</span> (MultipartFile file : files) {
+                <span class="keyword">if</span> (!file.isEmpty()) {
+                    String ext = getExt(file.getOriginalFilename());
+                    String filename = System.currentTimeMillis() + <span <span class="keyword">class</span>="string">"-"</span> + <span class="keyword">new</span> Random().nextInt(10000) + ext;
+                    file.transferTo(<span class="keyword">new</span> File(uploadPath, filename));
+                    imageList.add(<span <span class="keyword">class</span>="string">"/uploads/"</span> + filename);
+                }
+            }
+        }
+        p.setImages(imageList);
+        <span <span class="keyword">class</span>="keyword">return</span> p;
+    }
+
+    <span <span class="keyword">class</span>="keyword">private</span> String getExt(String filename) {
+        <span class="keyword">if</span> (filename == null || !filename.contains(<span <span class="keyword">class</span>="string">"."</span>)) <span <span class="keyword">class</span>="keyword">return</span> <span <span class="keyword">class</span>="string">".jpg"</span>;
+        <span <span class="keyword">class</span>="keyword">return</span> filename.substring(filename.lastIndexOf(<span <span class="keyword">class</span>="string">"."</span>));
+    }
+
+    <span <span class="keyword">class</span>="keyword">private</span> <span class="keyword">void</span> deleteUploadFile(String imageUrl) {
+        <span class="keyword">if</span> (imageUrl == null || !imageUrl.startsWith(<span <span class="keyword">class</span>="string">"/uploads/"</span>)) <span <span class="keyword">class</span>="keyword">return</span>;
+        String filename = imageUrl.substring(<span <span class="keyword">class</span>="string">"/uploads/"</span>.length());
+        File file = <span class="keyword">new</span> File(uploadPath, filename);
+        <span class="keyword">if</span> (file.exists()) {
+            file.delete();
+        }
+    }
+
+    <span <span class="keyword">class</span>="keyword">private</span> <span class="keyword">void</span> validateProduct(Product p) {
+        <span class="keyword">if</span> (p.getName() == null || p.getName().trim().isEmpty()) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"商品名称不能为空"</span>);
+        }
+        <span class="keyword">if</span> (p.getPrice() == null || p.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"商品价格必须大于0"</span>);
+        }
+        <span class="keyword">if</span> (p.getStock() < 0) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"商品库存不能为负数"</span>);
+        }
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Orders =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/orders"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> orderList(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"1"</span>) int page,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"10"</span>) int limit,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) String order_no,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) String status) {
+        QueryWrapper<Order> qw = <span class="keyword">new</span> QueryWrapper<>();
+        <span class="keyword">if</span> (order_no != null && !order_no.isEmpty()) qw.like(<span <span class="keyword">class</span>="string">"order_no"</span>, order_no);
+        <span class="keyword">if</span> (status != null && !status.isEmpty()) qw.eq(<span <span class="keyword">class</span>="string">"status"</span>, status);
+        qw.orderByDesc(<span <span class="keyword">class</span>="string">"created_at"</span>);
+        Page<Order> result = orderMapper.selectPage(<span class="keyword">new</span> Page<>(page, limit), qw);
+        <span class="keyword">for</span> (Order o : result.getRecords()) {
+            List<OrderItem> items = orderItemMapper.selectList(
+                    <span class="keyword">new</span> QueryWrapper<OrderItem>().eq(<span <span class="keyword">class</span>="string">"order_id"</span>, o.getId()));
+            o.setItems(items);
+        }
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"list"</span>, result.getRecords());
+        data.put(<span <span class="keyword">class</span>="string">"total"</span>, result.getTotal());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/orders/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Order> orderDetail(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Order order = orderMapper.selectById(id);
+        <span class="keyword">if</span> (order != null) {
+            List<OrderItem> items = orderItemMapper.selectList(
+                    <span class="keyword">new</span> QueryWrapper<OrderItem>().eq(<span <span class="keyword">class</span>="string">"order_id"</span>, id));
+            <span class="keyword">for</span> (OrderItem item : items) {
+                Product p = productMapper.selectById(item.getProductId());
+                <span class="keyword">if</span> (p != null) p.setCategory(null);
+                item.setProduct(p);
+            }
+            order.setItems(items);
+        }
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(order);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/orders/{id}/ship"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> orderShip(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Map<String, String> body) {
+        Order order = orderMapper.selectById(id);
+        <span class="keyword">if</span> (order == null) <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"订单不存在"</span>);
+        <span class="keyword">if</span> (!<span <span class="keyword">class</span>="string">"pending_shipment"</span>.equals(order.getStatus())) {
+            <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"当前订单状态不可发货"</span>);
+        }
+        order.setStatus(<span <span class="keyword">class</span>="string">"shipped"</span>);
+        order.setShippingTime(<span class="keyword">new</span> Date());
+        String trackingNo = body.getOrDefault(<span <span class="keyword">class</span>="string">"tracking_no"</span>, <span <span class="keyword">class</span>="string">""</span>);
+        <span class="keyword">if</span> (trackingNo.isEmpty()) {
+            trackingNo = <span <span class="keyword">class</span>="string">"EXP"</span> + UUID.randomUUID().toString().replace(<span <span class="keyword">class</span>="string">"-"</span>, <span <span class="keyword">class</span>="string">""</span>).substring(0, 14).toUpperCase();
+        }
+        order.setTrackingNo(trackingNo);
+        order.setShippingCompany(body.getOrDefault(<span <span class="keyword">class</span>="string">"company"</span>, <span <span class="keyword">class</span>="string">""</span>));
+        orderMapper.updateById(order);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@Transactional</span>
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/orders/{id}/cancel"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> orderCancel(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Order order = orderMapper.selectById(id);
+        <span class="keyword">if</span> (order == null) <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"订单不存在"</span>);
+        <span class="keyword">if</span> (<span <span class="keyword">class</span>="string">"cancelled"</span>.equals(order.getStatus()) || <span <span class="keyword">class</span>="string">"completed"</span>.equals(order.getStatus())
+                || <span <span class="keyword">class</span>="string">"refunding"</span>.equals(order.getStatus()) || <span <span class="keyword">class</span>="string">"refunded"</span>.equals(order.getStatus())
+                || <span <span class="keyword">class</span>="string">"shipped"</span>.equals(order.getStatus())) {
+            <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"当前状态不可取消"</span>);
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Restore stock <span class="keyword">for</span> pending_payment and pending_shipment (stock deducted at creation)</span>
+        <span class="keyword">if</span> (<span <span class="keyword">class</span>="string">"pending_payment"</span>.equals(order.getStatus()) || <span <span class="keyword">class</span>="string">"pending_shipment"</span>.equals(order.getStatus())) {
+            List<OrderItem> items = orderItemMapper.selectList(
+                    <span class="keyword">new</span> QueryWrapper<OrderItem>().eq(<span <span class="keyword">class</span>="string">"order_id"</span>, id));
+            <span class="keyword">for</span> (OrderItem oi : items) {
+                productMapper.restoreStock(oi.getProductId(), oi.getQuantity());
+                <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Restore flash sale stock</span>
+                Map<String, Object> snapshot = oi.getProductSnapshot();
+                <span class="keyword">if</span> (snapshot != null && snapshot.get(<span <span class="keyword">class</span>="string">"flashSaleId"</span>) != null) {
+                    flashSaleMapper.restoreStock((Integer) snapshot.get(<span <span class="keyword">class</span>="string">"flashSaleId"</span>), oi.getQuantity());
+                }
+            }
+            <span class="keyword">if</span> (order.getCouponId() != null) {
+                couponMapper.restoreAtomic(order.getCouponId());
+            }
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// CAS status transition</span>
+        UpdateWrapper<Order> uw = <span class="keyword">new</span> UpdateWrapper<>();
+        uw.eq(<span <span class="keyword">class</span>="string">"id"</span>, id).in(<span <span class="keyword">class</span>="string">"status"</span>, <span <span class="keyword">class</span>="string">"pending_payment"</span>, <span <span class="keyword">class</span>="string">"pending_shipment"</span>);
+        uw.set(<span <span class="keyword">class</span>="string">"status"</span>, <span <span class="keyword">class</span>="string">"cancelled"</span>);
+        int affected = orderMapper.update(null, uw);
+        <span class="keyword">if</span> (affected == 0) <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"取消失败，订单状态已变更"</span>);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@Transactional</span>
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/orders/{id}/refund"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> orderRefund(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Order order = orderMapper.selectById(id);
+        <span class="keyword">if</span> (order == null) <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"订单不存在"</span>);
+        <span class="keyword">if</span> (!<span <span class="keyword">class</span>="string">"completed"</span>.equals(order.getStatus()) && !<span <span class="keyword">class</span>="string">"refunding"</span>.equals(order.getStatus())) {
+            <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"当前订单状态不可退款"</span>);
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Restore stock</span>
+        List<OrderItem> items = orderItemMapper.selectList(
+                <span class="keyword">new</span> QueryWrapper<OrderItem>().eq(<span <span class="keyword">class</span>="string">"order_id"</span>, id));
+        <span class="keyword">for</span> (OrderItem oi : items) {
+            productMapper.restoreStock(oi.getProductId(), oi.getQuantity());
+            <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Restore flash sale stock</span>
+            Map<String, Object> snapshot = oi.getProductSnapshot();
+            <span class="keyword">if</span> (snapshot != null && snapshot.get(<span <span class="keyword">class</span>="string">"flashSaleId"</span>) != null) {
+                flashSaleMapper.restoreStock((Integer) snapshot.get(<span <span class="keyword">class</span>="string">"flashSaleId"</span>), oi.getQuantity());
+            }
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Restore coupon</span>
+        <span class="keyword">if</span> (order.getCouponId() != null) {
+            couponMapper.restoreAtomic(order.getCouponId());
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// CAS status transition</span>
+        UpdateWrapper<Order> uw = <span class="keyword">new</span> UpdateWrapper<>();
+        uw.eq(<span <span class="keyword">class</span>="string">"id"</span>, id).in(<span <span class="keyword">class</span>="string">"status"</span>, <span <span class="keyword">class</span>="string">"completed"</span>, <span <span class="keyword">class</span>="string">"refunding"</span>);
+        uw.set(<span <span class="keyword">class</span>="string">"status"</span>, <span <span class="keyword">class</span>="string">"refunded"</span>);
+        int affected = orderMapper.update(null, uw);
+        <span class="keyword">if</span> (affected == 0) <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"退款失败，订单状态已变更"</span>);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/orders/export"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ResponseEntity<byte[]> orderExport() <span <span class="keyword">class</span>="keyword">throws</span> Exception {
+        byte[] data = adminService.exportOrders();
+        <span <span class="keyword">class</span>="keyword">return</span> ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, <span <span class="keyword">class</span>="string">"attachment; filename=orders.xlsx"</span>)
+                .contentType(MediaType.parseMediaType(<span <span class="keyword">class</span>="string">"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"</span>))
+                .body(data);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Reviews =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/reviews"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> reviewList(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"1"</span>) int page,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"10"</span>) int limit,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(required = false) Integer product_id) {
+        Page<Review> result = reviewService.adminList(page, limit, product_id);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"list"</span>, result.getRecords());
+        data.put(<span <span class="keyword">class</span>="string">"total"</span>, result.getTotal());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/reviews/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> reviewDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Review review = reviewMapper.selectById(id);
+        <span class="keyword">if</span> (review == null) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"评价不存在"</span>);
+        }
+        reviewMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Banners =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/banners"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<List<Banner>> bannerList() {
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(bannerService.listAll());
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/banners"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Banner> bannerCreate(<span <span class="keyword">class</span>="annotation">@RequestBody</span> Banner banner) {
+        banner.setCreatedAt(<span class="keyword">new</span> Date());
+        banner.setUpdatedAt(<span class="keyword">new</span> Date());
+        <span class="keyword">if</span> (banner.getStatus() == null) banner.setStatus(<span <span class="keyword">class</span>="string">"on"</span>);
+        bannerMapper.insert(banner);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(banner);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/banners/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> bannerUpdate(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Banner data) {
+        data.setId(id);
+        data.setUpdatedAt(<span class="keyword">new</span> Date());
+        bannerMapper.updateById(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/banners/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> bannerDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Banner banner = bannerMapper.selectById(id);
+        <span class="keyword">if</span> (banner == null) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"轮播图不存在"</span>);
+        }
+        <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// Delete the image file from disk</span>
+        deleteUploadFile(banner.getImageUrl());
+        bannerMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/banners/upload-image"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, String>> bannerUploadImage(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(<span <span class="keyword">class</span>="string">"file"</span>) MultipartFile file) <span <span class="keyword">class</span>="keyword">throws</span> IOException {
+        <span class="keyword">if</span> (file.isEmpty()) {
+            <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"请选择图片文件"</span>);
+        }
+        String ext = getExt(file.getOriginalFilename());
+        String filename = System.currentTimeMillis() + <span <span class="keyword">class</span>="string">"-"</span> + <span class="keyword">new</span> Random().nextInt(10000) + ext;
+        file.transferTo(<span class="keyword">new</span> File(uploadPath, filename));
+        Map<String, String> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"url"</span>, <span <span class="keyword">class</span>="string">"/uploads/"</span> + filename);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"上传成功"</span>, data);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Announcements =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/announcements"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<List<Announcement>> annoList() {
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(announcementService.listAll());
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/announcements"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Announcement> annoCreate(<span <span class="keyword">class</span>="annotation">@RequestBody</span> Announcement anno) {
+        anno.setCreatedAt(<span class="keyword">new</span> Date());
+        anno.setUpdatedAt(<span class="keyword">new</span> Date());
+        <span class="keyword">if</span> (anno.getStatus() == null) anno.setStatus(<span <span class="keyword">class</span>="string">"on"</span>);
+        announcementMapper.insert(anno);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(anno);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/announcements/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> annoUpdate(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Announcement data) {
+        data.setId(id);
+        data.setUpdatedAt(<span class="keyword">new</span> Date());
+        announcementMapper.updateById(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/announcements/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> annoDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Announcement anno = announcementMapper.selectById(id);
+        <span class="keyword">if</span> (anno == null) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"公告不存在"</span>);
+        }
+        announcementMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Coupons =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/coupons"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<List<Coupon>> couponList() {
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(couponService.listAll());
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/coupons"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Coupon> couponCreate(<span <span class="keyword">class</span>="annotation">@RequestBody</span> Coupon coupon) {
+        coupon.setCreatedAt(<span class="keyword">new</span> Date());
+        coupon.setUpdatedAt(<span class="keyword">new</span> Date());
+        <span class="keyword">if</span> (coupon.getStatus() == null) coupon.setStatus(<span <span class="keyword">class</span>="string">"active"</span>);
+        <span class="keyword">if</span> (coupon.getUsed() == null) coupon.setUsed(0);
+        couponMapper.insert(coupon);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(coupon);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/coupons/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> couponUpdate(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Coupon data) {
+        data.setId(id);
+        data.setUpdatedAt(<span class="keyword">new</span> Date());
+        couponMapper.updateById(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/coupons/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> couponDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        Coupon coupon = couponMapper.selectById(id);
+        <span class="keyword">if</span> (coupon == null) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"优惠券不存在"</span>);
+        }
+        couponMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Flash Sales =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/flashsales"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<List<FlashSale>> flashSaleList() {
+        List<FlashSale> list = flashSaleMapper.selectList(
+                <span class="keyword">new</span> QueryWrapper<FlashSale>().orderByDesc(<span <span class="keyword">class</span>="string">"start_time"</span>));
+        <span class="keyword">for</span> (FlashSale fs : list) {
+            Product p = productMapper.selectById(fs.getProductId());
+            <span class="keyword">if</span> (p != null) { p.setCategory(null); fs.setProduct(p); }
+        }
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(list);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/flashsales"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<FlashSale> flashSaleCreate(<span <span class="keyword">class</span>="annotation">@RequestBody</span> FlashSale data) {
+        data.setSold(0);
+        data.setCreatedAt(<span class="keyword">new</span> Date());
+        data.setUpdatedAt(<span class="keyword">new</span> Date());
+        <span class="keyword">if</span> (data.getStatus() == null) data.setStatus(<span <span class="keyword">class</span>="string">"active"</span>);
+        flashSaleMapper.insert(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/flashsales/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> flashSaleUpdate(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> FlashSale data) {
+        data.setId(id);
+        data.setUpdatedAt(<span class="keyword">new</span> Date());
+        flashSaleMapper.updateById(data);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@DeleteMapping</span>(<span <span class="keyword">class</span>="string">"/flashsales/{id}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> flashSaleDelete(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id) {
+        FlashSale fs = flashSaleMapper.selectById(id);
+        <span class="keyword">if</span> (fs == null) <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(<span <span class="keyword">class</span>="string">"秒杀活动不存在"</span>);
+        flashSaleMapper.deleteById(id);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(<span <span class="keyword">class</span>="string">"删除成功"</span>, null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Feedbacks =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/feedbacks"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> feedbackList(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"1"</span>) int page,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"10"</span>) int limit) {
+        Page<Feedback> result = feedbackService.adminList(page, limit);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"list"</span>, result.getRecords());
+        data.put(<span <span class="keyword">class</span>="string">"total"</span>, result.getTotal());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/feedbacks/{id}/reply"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> feedbackReply(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer id, <span <span class="keyword">class</span>="annotation">@RequestBody</span> Map<String, String> body) {
+        feedbackService.reply(id, body.get(<span <span class="keyword">class</span>="string">"reply"</span>));
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Messages (客服) =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/messages/conversations"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> messageConversations(
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"1"</span>) int page,
+            <span <span class="keyword">class</span>="annotation">@RequestParam</span>(defaultValue = <span <span class="keyword">class</span>="string">"50"</span>) int limit) {
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(messageService.adminConversations(page, limit));
+    }
+
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/messages/{userId}"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<List<Message>> messageDetail(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer userId) {
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(messageService.getConversation(userId));
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PostMapping</span>(<span <span class="keyword">class</span>="string">"/messages/{userId}/reply"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Message> messageReply(<span <span class="keyword">class</span>="annotation">@PathVariable</span> Integer userId,
+                                              <span <span class="keyword">class</span>="annotation">@RequestBody</span> Map<String, String> body,
+                                              HttpServletRequest req) {
+        String content = body.get(<span <span class="keyword">class</span>="string">"content"</span>);
+        <span class="keyword">if</span> (content == null || content.trim().isEmpty()) {
+            <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"回复内容不能为空"</span>);
+        }
+        Integer adminId = (Integer) req.getAttribute(<span <span class="keyword">class</span>="string">"userId"</span>);
+        Message msg = messageService.send(adminId, userId, content);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(msg);
+    }
+
+    <span <span class="keyword">class</span>=<span <span class="keyword">class</span>="string">"comment"</span>>// ===== Admin Profile =====</span>
+    <span <span class="keyword">class</span>="annotation">@GetMapping</span>(<span <span class="keyword">class</span>="string">"/profile"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<Map<String, Object>> adminProfile(HttpServletRequest req) {
+        Integer userId = (Integer) req.getAttribute(<span <span class="keyword">class</span>="string">"userId"</span>);
+        User user = userService.findById(userId);
+        Map<String, Object> data = <span class="keyword">new</span> HashMap<>();
+        data.put(<span <span class="keyword">class</span>="string">"username"</span>, user.getUsername());
+        data.put(<span <span class="keyword">class</span>="string">"email"</span>, user.getEmail());
+        data.put(<span <span class="keyword">class</span>="string">"phone"</span>, user.getPhone());
+        data.put(<span <span class="keyword">class</span>="string">"avatar"</span>, user.getAvatar());
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(data);
+    }
+
+    <span <span class="keyword">class</span>="annotation">@PutMapping</span>(<span <span class="keyword">class</span>="string">"/profile/password"</span>)
+    <span <span class="keyword">class</span>="keyword">public</span> ApiResponse<?> adminChangePassword(<span <span class="keyword">class</span>="annotation">@RequestBody</span> Map<String, String> body,
+                                               HttpServletRequest req) {
+        Integer userId = (Integer) req.getAttribute(<span <span class="keyword">class</span>="string">"userId"</span>);
+        String oldPassword = body.get(<span <span class="keyword">class</span>="string">"old_password"</span>);
+        String newPassword = body.get(<span <span class="keyword">class</span>="string">"new_password"</span>);
+        User user = userService.findById(userId);
+        <span class="keyword">if</span> (!userService.verifyPassword(user, oldPassword)) {
+            <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.error(400, <span <span class="keyword">class</span>="string">"原密码错误"</span>);
+        }
+        userService.updatePassword(userId, newPassword);
+        <span <span class="keyword">class</span>="keyword">return</span> ApiResponse.ok(null);
+    }
+}
+</code></div>
+</body></html>

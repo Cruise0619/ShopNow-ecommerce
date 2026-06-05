@@ -238,6 +238,7 @@ import { addrAPI, couponAPI, orderAPI, productAPI } from '@/api'
 import { ElMessage } from 'element-plus'
 import { Location, Plus, CreditCard, Money, ChatDotRound, Edit } from '@element-plus/icons-vue'
 import { toDataURL } from 'qrcode'
+import { getPaymentBaseUrl } from '@/utils/payment'
 import regionData from '@/data/region'
 
 const route = useRoute()
@@ -362,10 +363,10 @@ const qrPayMethodLabel = computed(() => {
   return map[paymentMethod.value] || paymentMethod.value
 })
 
-const qrBaseUrl = import.meta.env.VITE_PAYMENT_BASE_URL || window.location.origin
+const qrBaseUrl = ref(window.location.origin)
 
 function copyPayUrl() {
-  const url = qrBaseUrl + '/pay/' + qrPayToken.value
+  const url = qrBaseUrl.value + '/pay/' + qrPayToken.value
   navigator.clipboard.writeText(url).then(() => {
     ElMessage.success('支付链接已复制')
   }).catch(() => {
@@ -467,7 +468,8 @@ async function handleSubmitOrder() {
       }
       qrPayToken.value = data.payToken
       qrPaymentAmount.value = Number(data.paymentAmount || 0)
-      const payUrl = qrBaseUrl + '/pay/' + data.payToken
+      qrBaseUrl.value = await getPaymentBaseUrl()
+      const payUrl = qrBaseUrl.value + '/pay/' + data.payToken
       qrDataUrl.value = await toDataURL(payUrl, { width: 256, margin: 2, color: { dark: '#000', light: '#fff' } })
       showQrDialog.value = true
     } else {

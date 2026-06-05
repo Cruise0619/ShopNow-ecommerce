@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; padding: 20px; }
+.header { background: #2d2d2d; padding: 8px 16px; border-radius: 6px 6px 0 0; margin-bottom: 0; display: flex; gap: 8px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+.filename { color: #888; margin-left: 16px; font-size: 12px; }
+.code-block { background: #1e1e1e; padding: 16px 20px; border-radius: 0 0 6px 6px; border: 1px solid #333; border-top: none; overflow-x: auto; white-space: pre; }
+.keyword { color: #569cd6; } .string { color: #ce9178; } .comment { color: #6a9955; } .annotation { color: #dcdcaa; }
+.type { color: #4ec9b0; } .number { color: #b5cea8; } .method { color: #dcdcaa; }
+h2 { color: #fff; font-size: 15px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #444; }
+</style></head>
+<body>
+<h2>UserMapper.java Mapper</h2>
+<div class="header">
+<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+<span class="filename">UserMapper.java</span>
+</div>
+<div class="code-block"><code><span <span class="keyword">class</span>="keyword">package</span> com.ecommerce.mapper;
+
+<span <span class="keyword">class</span>="keyword">import</span> com.baomidou.mybatisplus.core.mapper.BaseMapper;
+<span <span class="keyword">class</span>="keyword">import</span> com.ecommerce.entity.User;
+<span <span class="keyword">class</span>="keyword">import</span> org.apache.ibatis.annotations.Mapper;
+
+<span <span class="keyword">class</span>="annotation">@Mapper</span>
+<span <span class="keyword">class</span>="keyword">public</span> <span <span class="keyword">class</span>="keyword">interface</span> UserMapper <span <span class="keyword">class</span>="keyword">extends</span> BaseMapper<User> {
+}
+</code></div>
+</body></html>

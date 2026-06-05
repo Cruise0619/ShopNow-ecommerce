@@ -40,11 +40,11 @@ public class DataSeeder implements CommandLineRunner {
         repairSchema();
 
         long userCount = userMapper.selectCount(null);
-        if (userCount > 0 && userCount == 21) {
-            System.out.println("[Seeder] Data already exists (21 users), skipping seed.");
+        if (userCount > 0) {
+            System.out.println("[Seeder] Data already exists (" + userCount + " users), skipping seed.");
             return;
         }
-        System.out.println("[Seeder] Repairing/Seeding database... (existing users: " + userCount + ")");
+        System.out.println("[Seeder] Seeding empty database...");
 
         // Clear existing data in reverse dependency order
         cartItemMapper.delete(null);
