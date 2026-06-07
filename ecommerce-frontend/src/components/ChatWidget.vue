@@ -1,334 +1,181 @@
 <template>
-  <div class="chat-widget">
-    <!-- 浮动入口 -->
-    <transition name="bounce">
-      <div class="chat-float-btn" v-show="!chatOpen" @click="openChat">
-        <el-icon size="26"><Headset /></el-icon>
-        <span class="chat-dot"></span>
-      </div>
-    </transition>
-
-    <!-- 聊天面板 -->
-    <transition name="slide-up">
-      <div class="chat-panel" v-show="chatOpen">
-        <!-- 头部 -->
-        <div class="panel-header">
-          <el-avatar :size="36" class="header-avatar">客</el-avatar>
-          <div class="header-info">
-            <span class="header-name">商城客服</span>
-            <span class="header-sub">在线客服 · 服务时间 9:00-21:00</span>
-          </div>
-          <span class="header-tag online">在线</span>
-          <el-button text circle size="small" @click="chatOpen = false" class="close-btn">
-            <el-icon size="16"><Close /></el-icon>
-          </el-button>
+  <div class="chat-widget" :class="{ 'chat-widget--open': isOpen }">
+    <div class="chat-trigger" @click="toggle">
+      <el-badge :value="unreadCount" :hidden="!unreadCount" :max="99">
+        <div class="chat-trigger-icon">
+          <el-icon size="24"><Headset /></el-icon>
         </div>
+      </el-badge>
+      <span class="chat-trigger-label">客服</span>
+    </div>
 
-        <!-- 消息区域 -->
-        <div class="panel-body" ref="panelBodyRef">
-          <!-- 欢迎语 -->
-          <div class="sys-msg">
-            <span class="sys-text">欢迎来到商城客服</span>
-          </div>
-          <div class="sys-msg">
-            <span class="sys-text">您可以在此咨询订单、物流、售后等问题</span>
-          </div>
+    <div class="chat-panel" v-show="isOpen">
+      <div class="chat-panel-header">
+        <span><el-icon><Headset /></el-icon> 在线客服</span>
+        <el-button text size="small" @click="isOpen = false"><el-icon><Close /></el-icon></el-button>
+      </div>
 
-          <!-- 快捷问题 -->
-          <div class="quick-replies" v-if="msgs.length === 0">
-            <span
-              v-for="q in quickQuestions"
-              :key="q"
-              class="quick-chip"
-              @click="sendQuick(q)"
-            >{{ q }}</span>
-          </div>
+      <div class="chat-messages" ref="msgContainer">
+        <div v-if="messages.length === 0" class="chat-empty">
+          <el-icon size="40"><Headset /></el-icon>
+          <p>您好，有什么可以帮您？</p>
+        </div>
+        <div v-for="msg in messages" :key="msg.id" class="chat-msg" :class="msg.from === userId ? 'chat-msg--me' : 'chat-msg--other'">
+          <div class="chat-msg-bubble">{{ msg.content }}</div>
+          <div class="chat-msg-time">{{ formatTime(msg.time) }}</div>
+        </div>
+      </div>
 
-          <!-- 消息列表 -->
-          <template v-for="(item, i) in displayMessages" :key="item._key">
-            <!-- 时间分隔 -->
-            <div class="sys-msg" v-if="item._isTime">{{ item._timeLabel }}</div>
-            <!-- 普通消息 -->
-            <div
-              v-else
-              class="msg-row"
-              :class="item._mine ? 'me' : 'cs'"
-            >
-              <el-avatar :size="34" class="msg-avatar" v-if="!item._mine">客</el-avatar>
-              <div class="msg-content">
-                <div class="msg-bubble">{{ item.content }}</div>
-              </div>
-              <el-avatar :size="34" class="msg-avatar me-avatar" v-if="item._mine" :src="userStore.user?.avatar">
-                {{ (userStore.user?.username || '我')[0] }}
-              </el-avatar>
-            </div>
+      <div class="chat-input-area">
+        <el-input v-model="input" placeholder="输入消息..." @keyup.enter="send" :disabled="sending" maxlength="300" show-word-limit>
+          <template #append>
+            <el-button :loading="sending" @click="send" type="primary">
+              <el-icon><Promotion /></el-icon>
+            </el-button>
           </template>
-        </div>
-
-        <!-- 输入区域 -->
-        <div class="panel-footer">
-          <div class="input-row">
-            <el-input
-              v-model="text"
-              placeholder="输入您的问题..."
-              size="small"
-              class="chat-input"
-              @keydown.enter="sendMsg"
-              :disabled="sending"
-            />
-            <el-button
-              type="primary"
-              size="small"
-              :loading="sending"
-              @click="sendMsg"
-              class="send-btn"
-            >发送</el-button>
-          </div>
-        </div>
+        </el-input>
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
-import { useUserStore } from '@/stores/user'
-import { messageAPI } from '@/api'
-import { Headset, Close } from '@element-plus/icons-vue'
+import { ref, nextTick, onMounted, onUnmounted, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Headset, Close, Promotion } from '@element-plus/icons-vue';
+import { chatAPI } from '@/api';
+import { useUserStore } from '@/stores/user';
 
-const userStore = useUserStore()
-const chatOpen = ref(false)
-const msgs = ref([])
-const text = ref('')
-const sending = ref(false)
-const panelBodyRef = ref(null)
+const userStore = useUserStore();
+const userId = userStore.user?.id;
+const isOpen = ref(false);
+const input = ref('');
+const sending = ref(false);
+const messages = ref([]);
+const unreadCount = ref(0);
+const msgContainer = ref(null);
+let pollTimer = null;
 
-const quickQuestions = [
-  '订单什么时候发货？',
-  '如何申请退款？',
-  '物流信息在哪查？',
-  '支持哪些支付方式？'
-]
-
-// 处理消息：插入时间分隔
-const displayMessages = computed(() => {
-  const result = []
-  const gap = 2 * 60 * 1000 // 2分钟以上插入时间分隔
-  for (let i = 0; i < msgs.value.length; i++) {
-    const m = msgs.value[i]
-    if (i === 0 || (new Date(m.createdAt) - new Date(msgs.value[i - 1].createdAt)) > gap) {
-      result.push({
-        _key: 't' + m.id,
-        _isTime: true,
-        _timeLabel: formatDate(m.createdAt)
-      })
-    }
-    result.push({
-      _key: 'm' + m.id,
-      ...m,
-      _mine: m.fromUserId === userStore.user?.id
-    })
-  }
-  return result
-})
-
-function formatDate(t) {
-  if (!t) return ''
-  const d = new Date(t)
-  const now = new Date()
-  const time = d.toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-  if (d.toDateString() === now.toDateString()) return time
-  const date = d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit' })
-  return date + ' ' + time
-}
-
-function openChat() {
-  if (!userStore.isLoggedIn) {
-    import('element-plus').then(({ ElMessage }) => {
-      ElMessage.warning('请先登录后咨询客服')
-    })
-    return
-  }
-  chatOpen.value = true
-  fetchMsgs()
-}
-
-async function fetchMsgs() {
-  try {
-    const res = await messageAPI.list()
-    if (res.code === 200) msgs.value = res.data || []
-  } catch { /* ignore */ }
-}
-
-function sendQuick(q) {
-  text.value = q
-  sendMsg()
-}
-
-async function sendMsg() {
-  const content = text.value.trim()
-  if (!content) return
-  sending.value = true
-  const tempId = Date.now()
-  const temp = { id: tempId, content, fromUserId: userStore.user?.id, createdAt: new Date().toISOString() }
-  msgs.value.push(temp)
-  text.value = ''
-  scrollBottom()
-  try {
-    const res = await messageAPI.send(content)
-    if (res.code === 200) {
-      await fetchMsgs()
+onMounted(() => {
+  fetchUnread();
+  pollTimer = setInterval(() => {
+    if (isOpen.value && messages.value.length > 0) {
+      fetchMessages();
     } else {
-      msgs.value = msgs.value.filter(m => m.id !== tempId)
-      import('element-plus').then(({ ElMessage }) => {
-        ElMessage.error(res.message || '发送失败')
-      })
+      fetchUnread();
+    }
+  }, 3000);
+});
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer);
+});
+
+watch(isOpen, async (val) => {
+  if (val) {
+    await fetchMessages();
+    scrollBottom();
+  }
+});
+
+async function toggle() {
+  isOpen.value = !isOpen.value;
+}
+
+async function fetchMessages() {
+  try {
+    const res = await chatAPI.messages(0);
+    if (res.success) {
+      messages.value = res.data;
+      await nextTick();
+      scrollBottom();
+    }
+  } catch {}
+}
+
+async function fetchUnread() {
+  try {
+    const res = await chatAPI.unread();
+    if (res.success) unreadCount.value = res.data.count;
+  } catch {}
+}
+
+async function send() {
+  const text = input.value.trim();
+  if (!text) return;
+  sending.value = true;
+  try {
+    const res = await chatAPI.send({ toUserId: 0, content: text });
+    if (res.success) {
+      messages.value.push(res.data);
+      input.value = '';
+      await nextTick();
+      scrollBottom();
     }
   } catch {
-    msgs.value = msgs.value.filter(m => m.id !== tempId)
-    import('element-plus').then(({ ElMessage }) => {
-      ElMessage.error('发送失败，请稍后重试')
-    })
+    // handled by interceptor
   } finally {
-    sending.value = false
-    scrollBottom()
+    sending.value = false;
   }
 }
 
 function scrollBottom() {
-  nextTick(() => {
-    if (panelBodyRef.value) {
-      panelBodyRef.value.scrollTop = panelBodyRef.value.scrollHeight
-    }
-  })
+  if (msgContainer.value) {
+    msgContainer.value.scrollTop = msgContainer.value.scrollHeight;
+  }
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 </script>
 
 <style scoped>
-/* ===== 容器 ===== */
-.chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 999; }
+.chat-widget { position: fixed; right: 24px; bottom: 100px; z-index: 999; }
 
-/* ===== 浮动按钮 ===== */
-.chat-float-btn {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; position: relative;
-  box-shadow: 0 4px 20px rgba(255,80,0,0.4);
-  transition: transform 0.3s, box-shadow 0.3s;
+.chat-trigger {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--color-primary-gradient);
+  color: #fff; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; cursor: pointer; box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5);
+  transition: all 0.3s; position: relative;
 }
-.chat-float-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(255,80,0,0.55); }
-.chat-dot {
-  position: absolute; top: 6px; right: 6px; width: 12px; height: 12px;
-  border-radius: 50%; background: #10b981; border: 2px solid #fff;
-  animation: pulse-dot 1.5s ease-in-out infinite;
-}
-@keyframes pulse-dot { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
+.chat-trigger:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(220, 38, 38, 0.65); }
+.chat-trigger-label { font-size: 9px; font-weight: 700; margin-top: -2px; letter-spacing: 0.04em; }
 
-/* ===== 面板 ===== */
 .chat-panel {
-  width: 380px; height: 540px; background: #f5f6fa; border-radius: 4px;
+  position: absolute; right: 0; bottom: 64px; width: 360px; height: 460px;
+  background: #fff; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
   display: flex; flex-direction: column; overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
 }
+.chat-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--color-primary-gradient); color: #fff;
+  font-size: 15px; font-weight: 600;
+}
+.chat-panel-header :deep(.el-button) { color: #fff; }
 
-/* ===== 头部（淘宝橙） ===== */
-.panel-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 14px 16px;
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  color: #fff;
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+  background: #f8fafc;
 }
-.header-avatar { background: rgba(255,255,255,0.25); color: #fff; font-weight: 700; font-size: 15px; flex-shrink: 0; }
-.header-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.header-name { font-size: 15px; font-weight: 600; }
-.header-sub { font-size: 11px; opacity: 0.85; margin-top: 1px; }
-.header-tag { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(255,255,255,0.2); }
-.close-btn { color: #fff; opacity: 0.8; flex-shrink: 0; }
-.close-btn:hover { opacity: 1; }
+.chat-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #94a3b8; gap: 10px; }
 
-/* ===== 消息区 ===== */
-.panel-body {
-  flex: 1; overflow-y: auto; padding: 14px 16px;
-  background: #f5f5f5;
+.chat-msg { max-width: 80%; }
+.chat-msg--me { align-self: flex-end; }
+.chat-msg--other { align-self: flex-start; }
+.chat-msg-bubble {
+  padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word;
 }
-.panel-body::-webkit-scrollbar { width: 5px; }
-.panel-body::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 3px; }
+.chat-msg--me .chat-msg-bubble { background: var(--color-primary-gradient); color: #fff; border-bottom-right-radius: 4px; }
+.chat-msg--other .chat-msg-bubble { background: #fff; color: #334155; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.chat-msg-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+.chat-msg--me .chat-msg-time { text-align: right; }
 
-/* 系统消息 */
-.sys-msg { display: flex; justify-content: center; padding: 8px 0; }
-.sys-text {
-  font-size: 11px; color: #999; background: #e8e8e8;
-  padding: 4px 14px; border-radius: 3px; max-width: 85%;
-  text-align: center; line-height: 1.5;
-}
-
-/* 快捷问题 */
-.quick-replies { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 16px; justify-content: center; }
-.quick-chip {
-  font-size: 12px; color: #dc2626; background: #fff;
-  border: 1px solid #fca5a5; border-radius: 4px;
-  padding: 7px 14px; cursor: pointer; user-select: none;
-  transition: all 0.2s; white-space: nowrap;
-}
-.quick-chip:hover { background: #fef2f2; border-color: #dc2626; }
-
-/* 消息行 */
-.msg-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
-.msg-row.me { flex-direction: row-reverse; }
-
-/* 头像 */
-.msg-avatar {
-  flex-shrink: 0; font-size: 14px; font-weight: 600;
-  background: #fff; color: #dc2626; border: 1.5px solid #fecaca;
-}
-.me-avatar {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff; border: none;
-}
-
-/* 消息内容 */
-.msg-content { max-width: 72%; display: flex; flex-direction: column; }
-.msg-row.me .msg-content { align-items: flex-end; }
-
-/* 气泡 */
-.msg-bubble {
-  padding: 10px 14px; border-radius: 4px; font-size: 13px;
-  line-height: 1.55; word-break: break-word; position: relative;
-}
-.msg-row.cs .msg-bubble {
-  background: #fff; color: #333; border-top-left-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-}
-.msg-row.me .msg-bubble {
-  background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-top-right-radius: 2px;
-}
-
-/* ===== 输入区 ===== */
-.panel-footer {
-  padding: 10px 14px; background: #fff;
-  border-top: 1px solid #eee;
-}
-.input-row { display: flex; gap: 8px; align-items: center; }
-.chat-input :deep(.el-input__wrapper) {
-  border-radius: 4px; background: #f5f6fa; border: none;
-  box-shadow: none; padding: 2px 14px;
-}
-.chat-input :deep(.el-input__wrapper:focus),
-.chat-input :deep(.el-input__wrapper:hover) { background: #f0f1f5; }
-.chat-input :deep(.el-input__inner) { font-size: 13px; }
-.send-btn {
-  border-radius: 4px; background: #dc2626; border-color: #dc2626;
-  padding: 6px 18px; font-size: 13px;
-}
-.send-btn:hover { background: #ef4444; border-color: #ef4444; }
-
-/* ===== 过渡动画 ===== */
-.bounce-enter-active { animation: bounceIn 0.4s; }
-.bounce-leave-active { animation: bounceIn 0.3s reverse; }
-@keyframes bounceIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
-.slide-up-enter-active { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.slide-up-leave-active { transition: all 0.25s ease-in; }
-.slide-up-enter-from { opacity: 0; transform: translateY(20px) scale(0.95); }
-.slide-up-leave-to { opacity: 0; transform: translateY(20px) scale(0.95); }
+.chat-input-area { padding: 10px 12px; border-top: 1px solid #e2e8f0; }
+.chat-input-area :deep(.el-input-group__append) { padding: 0; }
+.chat-input-area :deep(.el-input-group__append .el-button) { border-radius: 0 4px 4px 0; height: 100%; border: none; }
 </style>

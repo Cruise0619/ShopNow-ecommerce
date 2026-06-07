@@ -69,13 +69,21 @@ export const adminAPI = {
   couponDelete: id => request.delete(`/admin/coupons/${id}`),
   feedbacks: p => request.get('/admin/feedbacks', { params: p }),
   feedbackReply: (id, d) => request.put(`/admin/feedbacks/${id}/reply`, d),
-  messageConversations: p => request.get('/admin/messages/conversations', { params: p }),
-  messageDetail: userId => request.get(`/admin/messages/${userId}`),
-  messageReply: (userId, d) => request.post(`/admin/messages/${userId}/reply`, { content: d }),
 };
 
 // Flash Sales
 export const flashsaleAPI = { list: () => request.get('/flashsales') };
+
+// Chat
+export const chatAPI = {
+  conversations: () => request.get('/chat/conversations'),
+  messages: otherId => request.get(`/chat/messages/${otherId}`),
+  send: d => request.post('/chat/send', d),
+  unread: () => request.get('/chat/unread'),
+};
+
+// Feedback
+export const feedbackAPI = { create: d => request.post('/feedbacks', d) };
 
 // Public payment (no auth required)
 export const publicAPI = {
@@ -83,8 +91,4 @@ export const publicAPI = {
   executePay: payToken => request.put(`/public/orders/${payToken}/pay`),
 };
 
-// Messages (客服)
-export const messageAPI = {
-  list: () => request.get('/messages'),
-  send: content => request.post('/messages', { content }),
-};
+

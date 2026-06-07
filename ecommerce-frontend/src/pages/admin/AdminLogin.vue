@@ -31,7 +31,6 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
-import { authAPI } from '@/api'
 import StarryParticles from '@/components/StarryParticles.vue'
 
 const bluePalette = [
@@ -68,17 +67,14 @@ async function handleLogin() {
 
   loading.value = true
   try {
-    const res = await authAPI.login({ username: form.username, password: form.password })
+    const res = await userStore.login({ username: form.username, password: form.password })
     if (res.code === 200) {
       const user = res.data.user
       if (user.role === 'admin') {
-        userStore.token = res.data.token
-        userStore.user = user
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('user', JSON.stringify(user))
         ElMessage.success('登录成功')
         router.push('/admin/dashboard')
       } else {
+        userStore.logout()
         ElMessage.error('非管理员账号，无法登录后台')
       }
     } else {

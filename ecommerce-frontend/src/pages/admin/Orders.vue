@@ -85,7 +85,7 @@
                 </template>
               </el-popconfirm>
             </template>
-            <template v-if="['completed'].includes(row.status)">
+            <template v-if="['shipped', 'completed', 'refunding'].includes(row.status)">
               <el-popconfirm title="确定退款？" confirm-button-text="确定" cancel-button-text="取消" @confirm="handleRefund(row.id)">
                 <template #reference>
                   <el-button type="danger" size="small" link>退款</el-button>

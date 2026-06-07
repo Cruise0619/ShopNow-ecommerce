@@ -18,7 +18,7 @@ const routes = [
       { path: 'favorites', name: 'Favorites', component: () => import('@/pages/client/Favorites.vue'), meta: { auth: true } },
       { path: 'profile', name: 'Profile', component: () => import('@/pages/client/Profile.vue'), meta: { auth: true } },
       { path: 'addresses', name: 'Addresses', component: () => import('@/pages/client/Addresses.vue'), meta: { auth: true } },
-      { path: 'messages', name: 'Messages', component: () => import('@/pages/client/Messages.vue'), meta: { auth: true } },
+
     ],
   },
   // Public payment (no auth)
@@ -42,12 +42,15 @@ const routes = [
       { path: 'flashsales', name: 'AdminFlashSales', component: () => import('@/pages/admin/FlashSales.vue') },
       { path: 'feedbacks', name: 'AdminFeedbacks', component: () => import('@/pages/admin/Feedbacks.vue') },
       { path: 'messages', name: 'AdminMessages', component: () => import('@/pages/admin/Messages.vue') },
+
       { path: 'profile', name: 'AdminProfile', component: () => import('@/pages/admin/AdminProfile.vue') },
     ],
   },
 ];
 
 const router = createRouter({ history: createWebHistory(), routes, scrollBehavior: () => ({ top: 0 }) });
+
+const clientAuthPages = ['/login', '/register', '/cart', '/checkout', '/profile', '/favorites', '/addresses']
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
@@ -56,6 +59,13 @@ router.beforeEach((to, from, next) => {
   if (to.meta.auth && !token) return next('/login');
   if (to.meta.admin && user?.role !== 'admin') return next('/admin/login');
   if (to.path === '/admin/login' && user?.role === 'admin') return next('/admin/dashboard');
+
+  // Prevent admin-role token from being used on client auth pages
+  if (user?.role === 'admin' && !to.path.startsWith('/admin')) {
+    const isClientAuthPage = clientAuthPages.some(p => to.path === p || to.path.startsWith('/orders'))
+    if (isClientAuthPage) return next('/admin/dashboard')
+  }
+
   if (to.path === '/login' && token && user?.role !== 'admin') return next('/');
   next();
 });

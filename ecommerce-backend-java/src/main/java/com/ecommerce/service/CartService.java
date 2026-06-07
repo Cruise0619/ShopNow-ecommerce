@@ -1,17 +1,19 @@
 package com.ecommerce.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ecommerce.entity.CartItem;
 import com.ecommerce.entity.Product;
 import com.ecommerce.exception.BusinessException;
 import com.ecommerce.mapper.CartItemMapper;
 import com.ecommerce.mapper.ProductMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class CartService {
@@ -22,13 +24,33 @@ public class CartService {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private RedisService redisService;
+
     public List<CartItem> list(Integer userId) {
+        // 先从 Redis 获取
+        String cartKey = redisService.getCartKey(Long.valueOf(userId));
+        List<CartItem> cachedItems = redisService.get(cartKey, List.class);
+        
+        if (cachedItems != null && !cachedItems.isEmpty()) {
+            // 缓存命中，补充商品信息
+            for (CartItem item : cachedItems) {
+                Product p = productMapper.selectById(item.getProductId());
+                if (p != null && "on".equals(p.getStatus())) {
+                    p.setCategory(null);
+                    item.setProduct(p);
+                }
+            }
+            return cachedItems;
+        }
+
+        // 缓存未命中，从数据库获取
         QueryWrapper<CartItem> qw = new QueryWrapper<CartItem>()
                 .eq("user_id", userId)
                 .orderByDesc("created_at");
         List<CartItem> items = cartItemMapper.selectList(qw);
         // Filter out items with deleted/off-shelf products and attach product info
-        List<CartItem> valid = new java.util.ArrayList<>();
+        List<CartItem> valid = new ArrayList<>();
         for (CartItem item : items) {
             Product p = productMapper.selectById(item.getProductId());
             if (p == null || "off".equals(p.getStatus())) continue;
@@ -36,6 +58,10 @@ public class CartService {
             item.setProduct(p);
             valid.add(item);
         }
+
+        // 缓存到 Redis，有效期 1 小时
+        redisService.set(cartKey, valid, 1, java.util.concurrent.TimeUnit.HOURS);
+        
         return valid;
     }
 
@@ -80,6 +106,10 @@ public class CartService {
         item.setCreatedAt(new Date());
         item.setUpdatedAt(new Date());
         cartItemMapper.insert(item);
+
+        // 删除缓存
+        redisService.delete(redisService.getCartKey(Long.valueOf(userId)));
+
         return item;
     }
 
@@ -97,6 +127,9 @@ public class CartService {
         if (selected != null) item.setSelected(selected);
         item.setUpdatedAt(new Date());
         cartItemMapper.updateById(item);
+
+        // 删除缓存
+        redisService.delete(redisService.getCartKey(Long.valueOf(userId)));
     }
 
     public void remove(Integer id, Integer userId) {
@@ -104,6 +137,9 @@ public class CartService {
         if (item == null) throw new BusinessException("购物车项不存在");
         if (!item.getUserId().equals(userId)) throw new BusinessException("无权操作此购物车项");
         cartItemMapper.deleteById(id);
+
+        // 删除缓存
+        redisService.delete(redisService.getCartKey(Long.valueOf(userId)));
     }
 
     public void removeBatch(List<Integer> ids, Integer userId) {
@@ -119,5 +155,8 @@ public class CartService {
             item.setSelected(selected);
             cartItemMapper.updateById(item);
         }
+
+        // 删除缓存
+        redisService.delete(redisService.getCartKey(Long.valueOf(userId)));
     }
 }

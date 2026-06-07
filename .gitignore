@@ -5,6 +5,7 @@ Thumbs.db
 *.swp
 .vscode/
 .claude/
+redis-local/
 
 # ======== 前端 (ecommerce-frontend) ========
 ecommerce-frontend/node_modules/

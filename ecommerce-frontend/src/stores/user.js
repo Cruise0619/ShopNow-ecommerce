@@ -17,10 +17,8 @@ export const useUserStore = defineStore('user', () => {
         const parsed = JSON.parse(saved);
         // Detect and clean plugin-persisted format: { user: {...}, token: "..." }
         if (parsed && typeof parsed === 'object' && 'token' in parsed && 'user' in parsed) {
-          // Plugin format detected — extract the real user and token
           token.value = parsed.token || '';
           user.value = parsed.user || null;
-          // Overwrite corrupted data with clean format
           localStorage.setItem('token', token.value);
           if (user.value) {
             localStorage.setItem('user', JSON.stringify(user.value));
@@ -31,6 +29,14 @@ export const useUserStore = defineStore('user', () => {
           user.value = parsed;
         }
       } catch { user.value = null; }
+    }
+
+    // If on a client page but loaded admin credentials, clear them
+    if (user.value?.role === 'admin' && typeof window !== 'undefined') {
+      const path = window.location.pathname
+      if (!path.startsWith('/admin')) {
+        logout()
+      }
     }
   }
 
@@ -61,6 +67,11 @@ export const useUserStore = defineStore('user', () => {
     user.value = null;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  }
+
+  // Listen for 401 interceptor forced-logout events
+  if (typeof window !== 'undefined') {
+    window.addEventListener('auth:logout', logout)
   }
 
   return { user, token, isLoggedIn, isAdmin, loadFromStorage, login, register, logout };

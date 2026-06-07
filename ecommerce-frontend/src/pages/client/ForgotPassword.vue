@@ -28,16 +28,32 @@
             </el-button>
           </el-form-item>
         </el-form>
+
+        <!-- 验证码显示区域（开发模式，模拟邮件发送） -->
+        <div v-if="sentCode" class="code-display">
+          <div class="code-hint">验证码（模拟邮件发送）</div>
+          <div class="code-value">
+            <span class="code-text">{{ sentCode }}</span>
+            <el-button text type="primary" size="small" @click="copyCode">复制</el-button>
+          </div>
+          <div class="code-expiry">5分钟内有效</div>
+        </div>
       </template>
 
       <!-- 第二步：验证码 + 新密码 -->
       <template v-else>
         <el-form ref="resetFormRef" :model="resetForm" :rules="resetRules" size="large" label-position="top">
+          <el-form-item>
+            <div class="email-display">
+              验证码已发送至 <strong>{{ emailForm.email }}</strong>
+            </div>
+          </el-form-item>
           <el-form-item prop="code">
             <el-input
               v-model="resetForm.code"
-              placeholder="请输入验证码"
+              placeholder="请输入6位验证码"
               :prefix-icon="Key"
+              maxlength="6"
               clearable
             />
           </el-form-item>
@@ -69,7 +85,7 @@
               重置密码
             </el-button>
           </el-form-item>
-          <el-form-item>
+          <div class="step2-actions">
             <el-button
               text
               type="primary"
@@ -79,7 +95,8 @@
             >
               {{ countdown > 0 ? `${countdown}秒后重新发送` : '重新发送验证码' }}
             </el-button>
-          </el-form-item>
+            <el-button text type="info" @click="goBackToEmail">更换邮箱</el-button>
+          </div>
         </el-form>
       </template>
 
@@ -102,6 +119,7 @@ const step = ref(1)
 const sendingCode = ref(false)
 const resetting = ref(false)
 const countdown = ref(0)
+const sentCode = ref('')
 let timer = null
 
 const emailFormRef = ref(null)
@@ -133,7 +151,10 @@ const validateResetPassword = (rule, value, callback) => {
 }
 
 const resetRules = {
-  code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  code: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { pattern: /^\d{6}$/, message: '验证码为6位数字', trigger: 'blur' }
+  ],
   password: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     { min: 6, max: 20, message: '密码长度在6-20个字符之间', trigger: 'blur' }
@@ -146,6 +167,7 @@ const resetRules = {
 
 function startCountdown() {
   countdown.value = 60
+  if (timer) clearInterval(timer)
   timer = setInterval(() => {
     countdown.value--
     if (countdown.value <= 0) {
@@ -153,6 +175,21 @@ function startCountdown() {
       timer = null
     }
   }, 1000)
+}
+
+function goBackToEmail() {
+  step.value = 1
+  resetForm.code = ''
+  resetForm.password = ''
+  resetForm.confirmPassword = ''
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(sentCode.value).then(() => {
+    ElMessage.success('验证码已复制到剪贴板')
+  }).catch(() => {
+    ElMessage.info(`验证码：${sentCode.value}`)
+  })
 }
 
 async function handleSendCode() {
@@ -165,8 +202,17 @@ async function handleSendCode() {
   try {
     const res = await authAPI.forgotPassword({ email: emailForm.email })
     if (res.code === 200) {
-      ElMessage.success('验证码已发送至您的邮箱')
-      if (step.value === 1) step.value = 2
+      const code = res.data?.code || ''
+      if (code) {
+        sentCode.value = code
+        ElMessage.success('验证码已生成，请查看下方展示区')
+      } else {
+        ElMessage.success('验证码已发送')
+      }
+      if (step.value === 1) {
+        step.value = 2
+        resetForm.code = code
+      }
       startCountdown()
     } else {
       ElMessage.error(res.message || '发送验证码失败')
@@ -190,8 +236,9 @@ async function handleResetPassword() {
       password: resetForm.password
     })
     if (res.code === 200) {
-      ElMessage.success('密码重置成功，请重新登录')
-      router.push('/login')
+      sentCode.value = ''
+      ElMessage.success('密码重置成功，即将跳转到登录页')
+      setTimeout(() => router.push('/login'), 800)
     } else {
       ElMessage.error(res.message || '密码重置失败')
     }
@@ -269,8 +316,56 @@ onBeforeUnmount(() => {
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
 }
 
-.resend-btn {
-  width: 100%;
+.code-display {
+  margin: 16px 0 0;
+  padding: 16px;
+  background: #f0fdf4;
+  border: 1px dashed #22c55e;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.code-hint {
+  font-size: 13px;
+  color: #16a34a;
+  margin-bottom: 8px;
+}
+
+.code-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.code-text {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #1e293b;
+  font-family: 'Courier New', monospace;
+}
+
+.code-expiry {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.email-display {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  padding: 8px 0;
+}
+
+.email-display strong {
+  color: var(--color-text-primary);
+}
+
+.step2-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .forgot-footer {

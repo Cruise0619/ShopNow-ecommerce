@@ -1,18 +1,28 @@
 package com.ecommerce.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.ecommerce.entity.*;
-import com.ecommerce.exception.BusinessException;
-import com.ecommerce.mapper.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ecommerce.entity.CartItem;
+import com.ecommerce.entity.Category;
+import com.ecommerce.entity.Favorite;
+import com.ecommerce.entity.Product;
+import com.ecommerce.entity.Review;
+import com.ecommerce.exception.BusinessException;
+import com.ecommerce.mapper.CartItemMapper;
+import com.ecommerce.mapper.CategoryMapper;
+import com.ecommerce.mapper.FavoriteMapper;
+import com.ecommerce.mapper.OrderItemMapper;
+import com.ecommerce.mapper.ProductMapper;
+import com.ecommerce.mapper.ReviewMapper;
+import com.ecommerce.mapper.UserMapper;
 
 @Service
 public class ProductService {
@@ -22,6 +32,9 @@ public class ProductService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private RedisService redisService;
 
     @Autowired
     private CategoryMapper categoryMapper;
@@ -94,6 +107,14 @@ public class ProductService {
     }
 
     public Product detail(Integer id) {
+        // 先从缓存获取
+        Product cachedProduct = redisService.getCachedProduct(Long.valueOf(id), Product.class);
+        if (cachedProduct != null) {
+            // 缓存中存在，直接返回
+            return cachedProduct;
+        }
+
+        // 缓存中不存在，从数据库获取
         Product product = productMapper.selectById(id);
         if (product == null) return null;
 
@@ -111,6 +132,9 @@ public class ProductService {
         product.setReviews(reviews);
         product.setAvgRating(reviewMapper.avgRating(id));
         product.setReviewCount(reviewMapper.countByProductId(id));
+
+        // 存入缓存
+        redisService.cacheProduct(Long.valueOf(id), product);
 
         return product;
     }

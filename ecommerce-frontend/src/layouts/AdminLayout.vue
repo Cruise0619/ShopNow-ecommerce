@@ -15,7 +15,11 @@
         <el-menu-item index="/admin/coupons"><el-icon><Ticket /></el-icon> 优惠券管理</el-menu-item>
         <el-menu-item index="/admin/flashsales"><el-icon><Timer /></el-icon> 秒杀管理</el-menu-item>
         <el-menu-item index="/admin/feedbacks"><el-icon><Comment /></el-icon> 反馈管理</el-menu-item>
-        <el-menu-item index="/admin/messages"><el-icon><ChatDotRound /></el-icon> 客服消息</el-menu-item>
+        <el-menu-item index="/admin/messages">
+          <el-icon><Headset /></el-icon> 客服消息
+          <el-badge v-if="adminUnread > 0" :value="adminUnread" style="margin-left:8px" />
+        </el-menu-item>
+
       </el-menu>
     </aside>
     <div class="admin-main">
@@ -34,11 +38,32 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { chatAPI } from '@/api';
+
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const adminUnread = ref(0);
+let unreadTimer = null;
+
+onMounted(() => {
+  fetchUnread();
+  unreadTimer = setInterval(fetchUnread, 10000);
+});
+
+onUnmounted(() => {
+  if (unreadTimer) clearInterval(unreadTimer);
+});
+
+async function fetchUnread() {
+  try {
+    const res = await chatAPI.unread();
+    if (res.success) adminUnread.value = res.data.count;
+  } catch {}
+}
 
 function logout() {
   userStore.logout();
@@ -48,7 +73,7 @@ function logout() {
 
 <style scoped>
 .admin-layout { display: flex; min-height: 100vh; }
-.sidebar { width: 220px; background: var(--gradient-sidebar); flex-shrink: 0; }
+.sidebar { width: 220px; background: var(--gradient-sidebar); flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 .sidebar-logo { display: block; padding: 16px 16px; font-size: 1.1rem; font-weight: 700; background: var(--color-primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .sidebar :deep(.el-menu) { border-right: none; }
 .sidebar :deep(.el-menu-item) { font-size: 0.9rem; height: 44px; line-height: 44px; }

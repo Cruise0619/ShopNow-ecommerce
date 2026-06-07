@@ -20,11 +20,12 @@ request.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      window.dispatchEvent(new CustomEvent('auth:logout'));
       // Only redirect if the current page requires auth
       const path = window.location.pathname;
       const isAuthPage = path.startsWith('/admin') || path === '/cart' || path === '/checkout'
         || path.startsWith('/orders') || path.startsWith('/favorites')
-        || path === '/profile' || path === '/addresses' || path === '/messages';
+        || path === '/profile' || path === '/addresses';
       if (isAuthPage) {
         window.location.href = path.startsWith('/admin') ? '/admin/login' : '/login';
       }

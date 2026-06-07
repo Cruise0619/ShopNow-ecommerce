@@ -171,51 +171,11 @@
             <span>{{ payingOrder.paymentMethod === 'wechat' ? '微信支付' : '支付宝' }}</span>
           </div>
           <div class="qr-code-wrapper">
-            <svg class="qr-code" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="0" width="200" height="200" rx="8" fill="#fff" />
-              <rect x="12" y="12" width="52" height="52" rx="8" fill="none" stroke="#1e293b" stroke-width="8" />
-              <rect x="24" y="24" width="28" height="28" rx="4" fill="#1e293b" />
-              <rect x="136" y="12" width="52" height="52" rx="8" fill="none" stroke="#1e293b" stroke-width="8" />
-              <rect x="148" y="24" width="28" height="28" rx="4" fill="#1e293b" />
-              <rect x="12" y="136" width="52" height="52" rx="8" fill="none" stroke="#1e293b" stroke-width="8" />
-              <rect x="24" y="148" width="28" height="28" rx="4" fill="#1e293b" />
-              <g fill="#1e293b">
-                <rect x="72" y="16" width="8" height="8" rx="1" /><rect x="84" y="16" width="8" height="8" rx="1" />
-                <rect x="96" y="16" width="8" height="8" rx="1" /><rect x="112" y="16" width="8" height="8" rx="1" />
-                <rect x="124" y="16" width="8" height="8" rx="1" /><rect x="72" y="28" width="8" height="8" rx="1" />
-                <rect x="96" y="28" width="8" height="8" rx="1" /><rect x="120" y="28" width="8" height="8" rx="1" />
-                <rect x="72" y="40" width="8" height="8" rx="1" /><rect x="84" y="40" width="8" height="8" rx="1" />
-                <rect x="108" y="40" width="8" height="8" rx="1" /><rect x="120" y="40" width="8" height="8" rx="1" />
-                <rect x="16" y="72" width="8" height="8" rx="1" /><rect x="28" y="72" width="8" height="8" rx="1" />
-                <rect x="52" y="72" width="8" height="8" rx="1" /><rect x="96" y="72" width="8" height="8" rx="1" />
-                <rect x="120" y="72" width="8" height="8" rx="1" /><rect x="164" y="72" width="8" height="8" rx="1" />
-                <rect x="176" y="72" width="8" height="8" rx="1" /><rect x="52" y="84" width="8" height="8" rx="1" />
-                <rect x="76" y="84" width="8" height="8" rx="1" /><rect x="132" y="84" width="8" height="8" rx="1" />
-                <rect x="152" y="84" width="8" height="8" rx="1" /><rect x="16" y="96" width="8" height="8" rx="1" />
-                <rect x="64" y="96" width="8" height="8" rx="1" /><rect x="100" y="96" width="8" height="8" rx="1" />
-                <rect x="124" y="96" width="8" height="8" rx="1" /><rect x="172" y="96" width="8" height="8" rx="1" />
-                <rect x="28" y="108" width="8" height="8" rx="1" /><rect x="64" y="108" width="8" height="8" rx="1" />
-                <rect x="88" y="108" width="8" height="8" rx="1" /><rect x="112" y="108" width="8" height="8" rx="1" />
-                <rect x="160" y="108" width="8" height="8" rx="1" /><rect x="16" y="120" width="8" height="8" rx="1" />
-                <rect x="52" y="120" width="8" height="8" rx="1" /><rect x="100" y="120" width="8" height="8" rx="1" />
-                <rect x="148" y="120" width="8" height="8" rx="1" /><rect x="172" y="120" width="8" height="8" rx="1" />
-                <rect x="16" y="140" width="8" height="8" rx="1" /><rect x="28" y="140" width="8" height="8" rx="1" />
-                <rect x="52" y="140" width="8" height="8" rx="1" /><rect x="96" y="140" width="8" height="8" rx="1" />
-                <rect x="120" y="140" width="8" height="8" rx="1" /><rect x="140" y="140" width="8" height="8" rx="1" />
-                <rect x="164" y="140" width="8" height="8" rx="1" /><rect x="176" y="140" width="8" height="8" rx="1" />
-                <rect x="16" y="152" width="8" height="8" rx="1" /><rect x="40" y="152" width="8" height="8" rx="1" />
-                <rect x="84" y="152" width="8" height="8" rx="1" /><rect x="108" y="152" width="8" height="8" rx="1" />
-                <rect x="132" y="152" width="8" height="8" rx="1" /><rect x="156" y="152" width="8" height="8" rx="1" />
-                <rect x="52" y="164" width="8" height="8" rx="1" /><rect x="72" y="164" width="8" height="8" rx="1" />
-                <rect x="96" y="164" width="8" height="8" rx="1" /><rect x="128" y="164" width="8" height="8" rx="1" />
-                <rect x="152" y="164" width="8" height="8" rx="1" /><rect x="16" y="176" width="8" height="8" rx="1" />
-                <rect x="64" y="176" width="8" height="8" rx="1" /><rect x="88" y="176" width="8" height="8" rx="1" />
-                <rect x="112" y="176" width="8" height="8" rx="1" /><rect x="136" y="176" width="8" height="8" rx="1" />
-                <rect x="160" y="176" width="8" height="8" rx="1" />
-              </g>
-              <rect x="84" y="84" width="32" height="32" rx="6" fill="#dc2626" />
-              <text x="100" y="105" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">支</text>
-            </svg>
+            <img :src="qrDataUrl" alt="支付二维码" class="qr-code" v-if="qrDataUrl" />
+            <div class="qr-placeholder" v-else>
+              <el-icon class="qr-loading-icon" :size="32"><Loading /></el-icon>
+              <span>二维码加载中...</span>
+            </div>
           </div>
           <div class="pay-hint-row">
             <span>请使用{{ payingOrder.paymentMethod === 'wechat' ? '微信' : '支付宝' }}扫描二维码支付</span>
@@ -237,7 +197,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { orderAPI } from '@/api'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Van } from '@element-plus/icons-vue'
+import { Van, Loading } from '@element-plus/icons-vue'
+import { toDataURL } from 'qrcode'
+import { getPaymentBaseUrl } from '@/utils/payment'
 
 const router = useRouter()
 const loading = ref(false)
@@ -303,10 +265,17 @@ function handlePageChange() {
 const payDialogVisible = ref(false)
 const payingOrder = ref(null)
 const payLoading = ref(false)
+const qrDataUrl = ref('')
 
-function handlePay(order) {
+async function handlePay(order) {
   payingOrder.value = order
   payDialogVisible.value = true
+  qrDataUrl.value = ''
+  if (order.payToken) {
+    const baseUrl = await getPaymentBaseUrl()
+    const payUrl = baseUrl + '/pay/' + order.payToken
+    qrDataUrl.value = await toDataURL(payUrl, { width: 256, margin: 2, color: { dark: '#000', light: '#fff' } })
+  }
 }
 
 async function confirmPay() {
@@ -612,6 +581,27 @@ function openLogistics(order) {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.qr-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-text-placeholder);
+  font-size: 13px;
+  background: #f9fafb;
+}
+
+.qr-loading-icon {
+  animation: qrSpin 0.8s linear infinite;
+}
+
+@keyframes qrSpin {
+  to { transform: rotate(360deg); }
 }
 
 .pay-hint-row {

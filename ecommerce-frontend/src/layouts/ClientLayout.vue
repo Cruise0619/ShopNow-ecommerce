@@ -74,6 +74,8 @@
         <p>&copy; 2024 ShopNow 品质生活电商平台 | 客服电话: 400-888-8888</p>
       </div>
     </footer>
+    <ChatWidget v-if="userStore.isLoggedIn && userStore.user?.role !== 'admin'" />
+    <FeedbackButton v-if="userStore.isLoggedIn && userStore.user?.role !== 'admin'" />
   </div>
 </template>
 
@@ -84,6 +86,8 @@ import { useUserStore } from '@/stores/user';
 import { useCartStore } from '@/stores/cart';
 import { homeAPI } from '@/api';
 import { Search, ShoppingCart, ArrowDown, StarFilled, UserFilled } from '@element-plus/icons-vue';
+import ChatWidget from '@/components/ChatWidget.vue';
+import FeedbackButton from '@/components/FeedbackButton.vue';
 
 const router = useRouter();
 const userStore = useUserStore();

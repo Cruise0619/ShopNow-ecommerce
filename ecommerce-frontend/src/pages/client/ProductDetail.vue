@@ -215,7 +215,6 @@
     </div>
   </div>
 
-  <ChatWidget />
 </template>
 
 <script setup>
@@ -224,7 +223,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { productAPI, reviewAPI, favAPI, flashsaleAPI } from '@/api'
 import { useCartStore } from '@/stores/cart'
 import { useUserStore } from '@/stores/user'
-import ChatWidget from '@/components/ChatWidget.vue'
 import { Plus, ShoppingCart, Star, StarFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 

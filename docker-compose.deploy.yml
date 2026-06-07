@@ -47,9 +47,6 @@ services:
       start_period: 5s
 
   backend:
-    build:
-      context: ./ecommerce-backend-java
-      dockerfile: Dockerfile
     image: cruise0619/shopnow-backend:latest
     container_name: shopnow-backend
     restart: unless-stopped
@@ -79,9 +76,6 @@ services:
       start_period: 90s
 
   frontend:
-    build:
-      context: ./ecommerce-frontend
-      dockerfile: Dockerfile
     image: cruise0619/shopnow-frontend:latest
     container_name: shopnow-frontend
     restart: unless-stopped
@@ -92,20 +86,11 @@ services:
       - "${FRONTEND_PORT:-80}:80"
     networks:
       - shopnow-net
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
 
 volumes:
   mysql-data:
-    driver: local
   redis-data:
-    driver: local
   uploads-data:
-    driver: local
 
 networks:
   shopnow-net:

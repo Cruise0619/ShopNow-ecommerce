@@ -41,7 +41,6 @@ public class AdminController {
     @Autowired private AnnouncementService announcementService;
     @Autowired private CouponService couponService;
     @Autowired private FeedbackService feedbackService;
-    @Autowired private MessageService messageService;
 
     @Autowired private UserMapper userMapper;
     @Autowired private CategoryMapper categoryMapper;
@@ -56,7 +55,7 @@ public class AdminController {
     @Autowired private CartItemMapper cartItemMapper;
     @Autowired private FavoriteMapper favoriteMapper;
     @Autowired private AddressMapper addressMapper;
-    @Autowired private MessageMapper messageMapper;
+
     @Autowired private FlashSaleMapper flashSaleMapper;
     @Autowired private FlashSaleService flashSaleService;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
@@ -135,8 +134,7 @@ public class AdminController {
         cartItemMapper.delete(new QueryWrapper<CartItem>().eq("user_id", id));
         favoriteMapper.delete(new QueryWrapper<Favorite>().eq("user_id", id));
         feedbackMapper.delete(new QueryWrapper<Feedback>().eq("user_id", id));
-        messageMapper.delete(new QueryWrapper<Message>().eq("from_user_id", id)
-                .or().eq("to_user_id", id));
+
         // Handle orders: delete order items then orders
         List<Order> userOrders = orderMapper.selectList(
                 new QueryWrapper<Order>().eq("user_id", id));
@@ -166,6 +164,21 @@ public class AdminController {
     public ApiResponse<List<Category>> categoryList() {
         List<Category> all = categoryMapper.selectList(
                 new QueryWrapper<Category>().orderByDesc("id"));
+
+        // Count products per category
+        Map<Integer, Integer> countMap = new HashMap<>();
+        List<Product> allProducts = productMapper.selectList(null);
+        for (Product p : allProducts) {
+            if (p.getCategoryId() != null) {
+                countMap.merge(p.getCategoryId(), 1, Integer::sum);
+            }
+        }
+
+        // Set productCount on each category
+        for (Category c : all) {
+            c.setProductCount(countMap.getOrDefault(c.getId(), 0));
+        }
+
         // Build tree
         List<Category> roots = new ArrayList<>();
         Map<Integer, List<Category>> childrenMap = new HashMap<>();
@@ -179,7 +192,23 @@ public class AdminController {
         for (Category c : all) {
             c.setChildren(childrenMap.get(c.getId()));
         }
+
+        // Aggregate child counts to parents (post-order: children first)
+        aggregateProductCounts(roots);
+
         return ApiResponse.ok(roots);
+    }
+
+    private void aggregateProductCounts(List<Category> categories) {
+        for (Category c : categories) {
+            if (c.getChildren() != null && !c.getChildren().isEmpty()) {
+                aggregateProductCounts(c.getChildren());
+                int childSum = c.getChildren().stream()
+                        .mapToInt(child -> child.getProductCount() != null ? child.getProductCount() : 0)
+                        .sum();
+                c.setProductCount((c.getProductCount() != null ? c.getProductCount() : 0) + childSum);
+            }
+        }
     }
 
     @PostMapping("/categories")
@@ -414,11 +443,15 @@ public class AdminController {
     public ApiResponse<Map<String, Object>> orderList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(required = false) String order_no,
-            @RequestParam(required = false) String status) {
+            @RequestParam(name = "order_no", required = false) String order_no,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "start_date", required = false) String startDate,
+            @RequestParam(name = "end_date", required = false) String endDate) {
         QueryWrapper<Order> qw = new QueryWrapper<>();
         if (order_no != null && !order_no.isEmpty()) qw.like("order_no", order_no);
         if (status != null && !status.isEmpty()) qw.eq("status", status);
+        if (startDate != null && !startDate.isEmpty()) qw.ge("created_at", startDate + " 00:00:00");
+        if (endDate != null && !endDate.isEmpty()) qw.le("created_at", endDate + " 23:59:59");
         qw.orderByDesc("created_at");
         Page<Order> result = orderMapper.selectPage(new Page<>(page, limit), qw);
         for (Order o : result.getRecords()) {
@@ -507,7 +540,9 @@ public class AdminController {
     public ApiResponse<?> orderRefund(@PathVariable Integer id) {
         Order order = orderMapper.selectById(id);
         if (order == null) return ApiResponse.error(400, "订单不存在");
-        if (!"completed".equals(order.getStatus()) && !"refunding".equals(order.getStatus())) {
+        if (!"completed".equals(order.getStatus())
+                && !"refunding".equals(order.getStatus())
+                && !"shipped".equals(order.getStatus())) {
             return ApiResponse.error(400, "当前订单状态不可退款");
         }
         // Restore stock
@@ -527,7 +562,7 @@ public class AdminController {
         }
         // CAS status transition
         UpdateWrapper<Order> uw = new UpdateWrapper<>();
-        uw.eq("id", id).in("status", "completed", "refunding");
+        uw.eq("id", id).in("status", "shipped", "completed", "refunding");
         uw.set("status", "refunded");
         int affected = orderMapper.update(null, uw);
         if (affected == 0) return ApiResponse.error(400, "退款失败，订单状态已变更");
@@ -736,32 +771,6 @@ public class AdminController {
     public ApiResponse<?> feedbackReply(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         feedbackService.reply(id, body.get("reply"));
         return ApiResponse.ok(null);
-    }
-
-    // ===== Messages (客服) =====
-    @GetMapping("/messages/conversations")
-    public ApiResponse<Map<String, Object>> messageConversations(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "50") int limit) {
-        return ApiResponse.ok(messageService.adminConversations(page, limit));
-    }
-
-    @GetMapping("/messages/{userId}")
-    public ApiResponse<List<Message>> messageDetail(@PathVariable Integer userId) {
-        return ApiResponse.ok(messageService.getConversation(userId));
-    }
-
-    @PostMapping("/messages/{userId}/reply")
-    public ApiResponse<Message> messageReply(@PathVariable Integer userId,
-                                              @RequestBody Map<String, String> body,
-                                              HttpServletRequest req) {
-        String content = body.get("content");
-        if (content == null || content.trim().isEmpty()) {
-            return ApiResponse.error(400, "回复内容不能为空");
-        }
-        Integer adminId = (Integer) req.getAttribute("userId");
-        Message msg = messageService.send(adminId, userId, content);
-        return ApiResponse.ok(msg);
     }
 
     // ===== Admin Profile =====

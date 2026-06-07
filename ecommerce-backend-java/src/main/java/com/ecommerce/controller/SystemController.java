@@ -1,6 +1,7 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.dto.ApiResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +16,21 @@ import java.util.Map;
 @RequestMapping("/api/system")
 public class SystemController {
 
+    @Value("${payment.external-url:}")
+    private String externalUrl;
+
+    @Value("${payment.frontend-port:5173}")
+    private String frontendPort;
+
     @GetMapping("/lan-ip")
     public ApiResponse<Map<String, String>> getLanIp() {
         Map<String, String> result = new HashMap<>();
-        result.put("ip", detectLanIp());
-        result.put("port", "5173");
+        if (!externalUrl.isEmpty()) {
+            result.put("ip", externalUrl);
+        } else {
+            result.put("ip", detectLanIp());
+        }
+        result.put("port", frontendPort);
         return ApiResponse.ok(result);
     }
 
@@ -35,9 +46,12 @@ public class SystemController {
                     if (addr.isLoopbackAddress()) continue;
                     if (addr.getAddress().length == 4) {
                         String ip = addr.getHostAddress();
-                        if (!ip.startsWith("127.") && !ip.startsWith("169.254.")) {
-                            return ip;
+                        if (ip.startsWith("127.") || ip.startsWith("169.254.")) continue;
+                        if (ip.startsWith("172.") && ip.split("\\.").length == 4) {
+                            int second = Integer.parseInt(ip.split("\\.")[1]);
+                            if (second >= 16 && second <= 31) continue;
                         }
+                        return ip;
                     }
                 }
             }

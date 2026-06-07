@@ -87,7 +87,8 @@
               :sm="8"
               :md="6"
             >
-              <el-card shadow="hover" class="product-card" @click="$router.push(`/products/${p.id}`)">
+              <router-link :to="`/products/${p.id}`" class="product-card-link">
+              <el-card shadow="hover" class="product-card">
                 <div class="product-image">
                   <el-image
                     :src="p.coverImage || p.image"
@@ -118,6 +119,7 @@
                   <span class="product-sales">已售 {{ p.sales || 0 }}</span>
                 </div>
               </el-card>
+              </router-link>
             </el-col>
           </el-row>
           <el-empty v-else description="暂无商品，请尝试其他分类或关键词" />
@@ -138,14 +140,12 @@
     </el-row>
   </div>
 
-  <ChatWidget />
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { productAPI, adminAPI, flashsaleAPI } from '@/api'
-import ChatWidget from '@/components/ChatWidget.vue'
 import { Search, Grid, Picture } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -406,6 +406,13 @@ watch(
 
 .product-grid-wrapper {
   min-height: 400px;
+}
+
+.product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  cursor: pointer;
 }
 
 .product-card {
